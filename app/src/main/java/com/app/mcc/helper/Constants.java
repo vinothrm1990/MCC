@@ -28,4 +28,7 @@ public class Constants {
     public static String GET_MEMBER = "get_member.php?";
     public static String SEND_FEEDBACK = "send_feedback.php?";
     public static String ADD_POST = "add_post.php?";
+    public static String POST_UPLOAD = "post_upload.php?";
+    public static String PROFILE_UPLOAD = "profile_upload.php?";
+    public static String UPDATE_PROFILE = "update_profile.php?";
 }

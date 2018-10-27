@@ -499,7 +499,7 @@ public class DirectorRegisterFragment extends Fragment {
             protected Map<String, String> getParams()
             {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("name", fname + "\t" + lname);
+                params.put("name", fname + " " + lname);
                 params.put("email", email);
                 params.put("mobile", phone);
                 params.put("password", cpass);
