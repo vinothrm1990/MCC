@@ -8,11 +8,17 @@ public class Constants {
     public static SharedPreferences pref;
     public static SharedPreferences.Editor editor;
 
+    //API key
+    public static String YOUTUBE_KEY = "AIzaSyBdGXVvrWYY4ySJgGY3FnR3Z1VG8YDRfgs";
+
     //base URL
     public static String MEMBER_URL = "http://mycinemachance.com/jsons/member/";
     public static String DIRECTOR_URL = "http://mycinemachance.com/jsons/director/";
     public static String GUEST_URL = "http://mycinemachance.com/jsons/guest/";
     public static String IMAGE_URL = "http://mycinemachance.com/upload/";
+    public static String RATE_URL = "http://mycinemachance.com/admin/upload/";
+    public static String PROFILE_URL = "http://mycinemachance.com/jsons/director/uploads/profile/";
+    public static String POST_IMAGE_URL = "http://mycinemachance.com/jsons/director/uploads/post/";
 
     //page URL
     public static String LOGIN = "login.php?";
@@ -26,9 +32,17 @@ public class Constants {
     public static String GET_WISHLIST = "get_wishlist.php?";
     public static String GET_CATEGORY = "get_category.php?";
     public static String GET_MEMBER = "get_member.php?";
-    public static String SEND_FEEDBACK = "send_feedback.php?";
+    public static String SEND_FEEDBACK = "add_feedback.php?";
     public static String ADD_POST = "add_post.php?";
     public static String POST_UPLOAD = "post_upload.php?";
     public static String PROFILE_UPLOAD = "profile_upload.php?";
     public static String UPDATE_PROFILE = "update_profile.php?";
+    public static String GET_PROFILE = "get_profile.php?";
+    public static String GET_FLAG = "get_flag.php?";
+    public static String GET_POST = "get_post.php?";
+    public static String GET_TRAILER = "get_trailer.php?";
+    public static String GET_RATING = "get_rating.php?";
+    public static String GET_LOOK = "get_look.php?";
+    public static String GET_INTERVIEW = "get_interview.php?";
+    public static String GET_CATEGORY_MEMBER = "get_category_member.php?";
 }

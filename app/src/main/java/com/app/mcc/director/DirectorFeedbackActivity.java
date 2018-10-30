@@ -31,6 +31,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DirectorFeedbackActivity extends AppCompatActivity implements InternetConnectivityListener {
 
     AppCompatEditText etTitle, etDesc;
@@ -103,7 +106,7 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        StringRequest request = new StringRequest(Request.Method.GET, FEEDBACK_URL,
+        StringRequest request = new StringRequest(Request.Method.POST, FEEDBACK_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -112,20 +115,27 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
                         try {
                             jsonObject = new JSONObject(response);
 
-                            if (jsonObject.getString("status").equalsIgnoreCase("success")){
-
-                                String data = jsonObject.getString("message");
-                                JSONArray array = new JSONArray(data);
-                                for (int i = 0; i < array.length(); i++) {
-                                    JSONObject object = array.getJSONObject(i);
-
-
-                                }
+                            if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("success")){
+                                progressDialog.hide();
+                                KToast.successToast(DirectorFeedbackActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
 
 
-                            }else {
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("failed")){
+                                progressDialog.hide();
                                 KToast.errorToast(DirectorFeedbackActivity.this,
                                         jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
+                            }else {
+                                progressDialog.hide();
+                                KToast.errorToast(DirectorFeedbackActivity.this,
+                                        "Something went Wrong",
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
 
@@ -133,25 +143,44 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            progressDialog.hide();
                             KToast.errorToast(DirectorFeedbackActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-                        progressDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progressDialog.hide();
                         KToast.errorToast(DirectorFeedbackActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
                                 KToast.LENGTH_SHORT);
                     }
-                });
+                })
+        {
+
+            @Override
+            protected Map<String, String> getParams()
+            {
+                String title = etTitle.getText().toString().trim();
+                String desc = etDesc.getText().toString().trim();
+
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("fname", Constants.pref.getString("name", ""));
+                //params.put("lname", Constants.pref.getString("mobileno", ""));
+                params.put("email", Constants.pref.getString("email", ""));
+                params.put("mobileno", Constants.pref.getString("mobileno", ""));
+                params.put("title", title);
+                params.put("desc", desc);
+                return params;
+            }
+
+        };
         queue.add(request);
     }
 

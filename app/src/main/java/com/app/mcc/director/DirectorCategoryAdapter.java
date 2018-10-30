@@ -1,6 +1,7 @@
 package com.app.mcc.director;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +45,16 @@ public class DirectorCategoryAdapter extends RecyclerView.Adapter<DirectorCatego
 
         holder.tvTitle.setText(map.get("title"));
         Glide.with(mContext).load(map.get("image")).thumbnail(0.1f).into(holder.ivImage);
+
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(mContext, DirectorCategoryDetailsActivity.class);
+                intent.putExtra("data", map);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     @Override

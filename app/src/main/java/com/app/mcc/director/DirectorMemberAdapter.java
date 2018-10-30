@@ -1,6 +1,7 @@
 package com.app.mcc.director;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -44,6 +45,16 @@ public class DirectorMemberAdapter extends RecyclerView.Adapter<DirectorMemberAd
         holder.tvTitle.setText(map.get("category"));
         holder.tvName.setText(map.get("f_name") + "\t" +map.get("l_name"));
         Glide.with(mContext).load(Constants.IMAGE_URL + map.get("profile")).thumbnail(0.1f).into(holder.cvImage);
+
+        holder.ivView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(mContext, DirectorMemberDetailsActivity.class);
+                intent.putExtra("data", map);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     @Override

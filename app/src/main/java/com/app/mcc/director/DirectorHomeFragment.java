@@ -89,7 +89,7 @@ public class DirectorHomeFragment extends Fragment {
                             jsonObject = new JSONObject(response);
 
                             if (jsonObject.getString("status").equalsIgnoreCase("success")){
-
+                                progressDialog.hide();
                                 String data = jsonObject.getString("message");
                                 JSONArray array = new JSONArray(data);
                                 for (int i = 0; i < array.length(); i++) {
@@ -117,6 +117,7 @@ public class DirectorHomeFragment extends Fragment {
                                 recyclerView.setAdapter(homeAdapter);
 
                             }else {
+                                progressDialog.hide();
                                 KToast.errorToast(getActivity(),
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
@@ -126,19 +127,19 @@ public class DirectorHomeFragment extends Fragment {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            progressDialog.hide();
                             KToast.errorToast(getActivity(),
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-                        progressDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progressDialog.hide();
                         KToast.errorToast(getActivity(),
                                 error.getMessage(),
                                 Gravity.BOTTOM,
@@ -147,5 +148,7 @@ public class DirectorHomeFragment extends Fragment {
                 });
         queue.add(request);
     }
+
+
 
 }

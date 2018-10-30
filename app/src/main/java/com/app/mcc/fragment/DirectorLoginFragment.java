@@ -234,18 +234,16 @@ public class DirectorLoginFragment extends Fragment {
                                 for (int i = 0; i < array.length(); i++) {
 
                                     JSONObject object = array.getJSONObject(i);
+                                    String id = object.getString("id");
                                     String mobile = object.getString("mobileno");
                                     String password = object.getString("password");
                                     String name = object.getString("name");
                                     String email = object.getString("email");
-                                    String language = object.getString("language");
-                                    String category = object.getString("category");
+                                    Constants.editor.putString("id", id);
                                     Constants.editor.putString("mobileno", mobile);
                                     Constants.editor.putString("password", password);
                                     Constants.editor.putString("name", name);
                                     Constants.editor.putString("email", email);
-                                    Constants.editor.putString("language", language);
-                                    Constants.editor.putString("category", category);
                                     Constants.editor.apply();
                                     Constants.editor.commit();
                                 }

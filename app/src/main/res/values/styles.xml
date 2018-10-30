@@ -35,4 +35,8 @@
         <!-- Used for the background -->
         <item name="android:background">@color/colorPrimary</item>
     </style>
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/colorAccent</item>
+        <item name="colorControlActivated">@color/starBG</item>
+    </style>
 </resources>

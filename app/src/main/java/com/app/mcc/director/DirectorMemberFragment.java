@@ -99,12 +99,30 @@ public class DirectorMemberFragment extends Fragment {
                                     String lname = object.getString("l_name");
                                     String profile = object.getString("profile");
                                     String category = object.getString("category");
+                                    String language = object.getString("language");
+                                    String email = object.getString("email");
+                                    String phone = object.getString("contact");
+                                    String address = object.getString("address");
+                                    String city = object.getString("city");
+                                    String age = object.getString("age");
+                                    String dob = object.getString("dob");
+                                    String gender = object.getString("gender");
+                                    String qualify = object.getString("qualify");
 
                                     map.put("id", id);
                                     map.put("f_name", fname);
                                     map.put("l_name", lname);
                                     map.put("profile", profile);
                                     map.put("category", category);
+                                    map.put("language", language);
+                                    map.put("email", email);
+                                    map.put("contact", phone);
+                                    map.put("address", address);
+                                    map.put("city", city);
+                                    map.put("age", age);
+                                    map.put("dob", dob);
+                                    map.put("gender", gender);
+                                    map.put("qualify", qualify);
 
                                     memberList.add(map);
 

@@ -46,9 +46,10 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
     Dialog progressDialog;
     RequestQueue queue;
     int flag;
-    String memid, dirid;
+    String memid, dirphone, dirid;
     String ADD_URL = Constants.DIRECTOR_URL + Constants.ADD_REMOVE_WISHLIST;
     String REMOVE_URL = Constants.DIRECTOR_URL + Constants.ADD_REMOVE_WISHLIST;
+    String FLAG_URL = Constants.DIRECTOR_URL + Constants.GET_FLAG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +90,8 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
         tvName.setText(map.get("f_name") + "\t" + (map.get("l_name")));
         tvTitle.setText(map.get("category"));
         memid = map.get("id");
-        dirid = Constants.pref.getString("mobileno", "");
+        dirphone= Constants.pref.getString("mobileno", "");
+        dirid= Constants.pref.getString("id", "");
 
         ivWishlistFalse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +108,7 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
             @Override
             public void onClick(View view) {
 
-                flag = 0;
+                flag = 2;
                 ivWishlistTrue.setVisibility(View.GONE);
                 ivWishlistFalse.setVisibility(View.VISIBLE);
                 removeWishlist();
@@ -136,11 +138,86 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
                 
             }
         });
+
+        getFlag();
+    }
+
+    private void getFlag() {
+
+        progressDialog = new Dialog(DirectorHomeActivity.this);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.setContentView(R.layout.custom_dialog_progress);
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        StringRequest request = new StringRequest(Request.Method.POST, FLAG_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+
+                            if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("success")){
+                                progressDialog.hide();
+                                String data = jsonObject.getString("message");
+                                JSONArray array = new JSONArray(data);
+                                JSONObject object = array.getJSONObject(0);
+
+                                int flagstatus = Integer.parseInt(object.getString("flag"));
+                                if (flagstatus == 1){
+                                    ivWishlistFalse.setVisibility(View.GONE);
+                                    ivWishlistTrue.setVisibility(View.VISIBLE);
+                                }
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("empty")){
+                                progressDialog.hide();
+                                ivWishlistTrue.setVisibility(View.GONE);
+                                ivWishlistFalse.setVisibility(View.VISIBLE);
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            progressDialog.hide();
+                            KToast.errorToast(DirectorHomeActivity.this,
+                                    e.getMessage(),
+                                    Gravity.BOTTOM,
+                                    KToast.LENGTH_SHORT);
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progressDialog.hide();
+                        KToast.errorToast(DirectorHomeActivity.this,
+                                error.getMessage(),
+                                Gravity.BOTTOM,
+                                KToast.LENGTH_SHORT);
+                    }
+                })
+        {
+            @Override
+            protected Map<String, String> getParams()
+            {
+
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("member", memid);
+                return params;
+            }
+        };
+        queue.add(request);
     }
 
     private void removeWishlist() {
 
-        progressDialog = new Dialog(this);
+        progressDialog = new Dialog(DirectorHomeActivity.this);
         progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         progressDialog.setContentView(R.layout.custom_dialog_progress);
         progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -158,7 +235,7 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("removed")){
-
+                                progressDialog.hide();
                                     KToast.successToast(DirectorHomeActivity.this,
                                             jsonObject.getString("message"),
                                             Gravity.BOTTOM,
@@ -166,12 +243,22 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
 
                                 }else if (jsonObject.getString("status")
                                         .equalsIgnoreCase("already")){
+                                progressDialog.hide();
                                     KToast.warningToast(DirectorHomeActivity.this,
                                             jsonObject.getString("message"),
                                             Gravity.BOTTOM,
                                             KToast.LENGTH_SHORT);
 
-                                }else {
+                                }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("removed failed")){
+                                progressDialog.hide();
+                                KToast.errorToast(DirectorHomeActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
+                            }else {
+                                progressDialog.hide();
                                 KToast.errorToast(DirectorHomeActivity.this,
                                         "Something Went Wrong!",
                                         Gravity.BOTTOM,
@@ -181,19 +268,19 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            progressDialog.hide();
                             KToast.errorToast(DirectorHomeActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-                        progressDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progressDialog.hide();
                         KToast.errorToast(DirectorHomeActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
@@ -206,7 +293,8 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
             {
 
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("mobileno", dirid);
+                params.put("id", dirid);
+                params.put("mobileno", dirphone);
                 params.put("member", memid);
                 params.put("flag", String.valueOf(flag));
                 return params;
@@ -235,7 +323,7 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("added")){
-
+                                progressDialog.hide();
                                 KToast.successToast(DirectorHomeActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
@@ -243,12 +331,22 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
 
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("already")){
+                                progressDialog.hide();
                                 KToast.warningToast(DirectorHomeActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
 
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("adding failed")){
+                                progressDialog.hide();
+                                KToast.errorToast(DirectorHomeActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
                             }else {
+                                progressDialog.hide();
                                 KToast.errorToast(DirectorHomeActivity.this,
                                         "Something Went Wrong!",
                                         Gravity.BOTTOM,
@@ -257,19 +355,19 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            progressDialog.hide();
                             KToast.errorToast(DirectorHomeActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-                        progressDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progressDialog.hide();
                         KToast.errorToast(DirectorHomeActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
@@ -282,7 +380,8 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
             protected Map<String, String> getParams()
             {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("mobileno", dirid);
+                params.put("id", dirid);
+                params.put("mobileno", dirphone);
                 params.put("member", memid);
                 params.put("flag", String.valueOf(flag));
                 return params;

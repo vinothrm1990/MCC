@@ -111,12 +111,20 @@ public class DirectorWishlistActivity extends AppCompatActivity implements Inter
                                     String count = object.getString("count");
                                     String vid = object.getString("view_id");
                                     String flag = object.getString("flag");
+                                    String fname = object.getString("f_name");
+                                    String lname = object.getString("l_name");
+                                    String title = object.getString("category");
+                                    String image = object.getString("profile");
 
                                     map.put("w_id", id);
                                     map.put("mem_id", mid);
                                     map.put("count", count);
                                     map.put("view_id", vid);
                                     map.put("flag", flag);
+                                    map.put("f_name", fname);
+                                    map.put("l_name", lname);
+                                    map.put("category", title);
+                                    map.put("profile", image);
 
                                     wishList.add(map);
                                 }
@@ -124,12 +132,24 @@ public class DirectorWishlistActivity extends AppCompatActivity implements Inter
                                 wishlistAdapter = new DirectorWishlistAdapter(DirectorWishlistActivity.this, wishList);
                                 recyclerView.setAdapter(wishlistAdapter);
 
-                            }else {
+                            }else if (jsonObject.getString("status").equalsIgnoreCase("empty")){
+                                KToast.warningToast(DirectorWishlistActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
+                            }else if (jsonObject.getString("status").equalsIgnoreCase("failed")){
                                 KToast.errorToast(DirectorWishlistActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
 
+                            }else {
+
+                                KToast.errorToast(DirectorWishlistActivity.this,
+                                        "Something went Wrong!",
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
                             }
 
                         } catch (JSONException e) {
@@ -157,9 +177,9 @@ public class DirectorWishlistActivity extends AppCompatActivity implements Inter
             @Override
             protected Map<String, String> getParams()
             {
-                String mid = Constants.pref.getString("mid", "");
+                String mobile = Constants.pref.getString("mobileno", "");
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("mid", mid);
+                params.put("mobileno", mobile);
                 return params;
             }
 

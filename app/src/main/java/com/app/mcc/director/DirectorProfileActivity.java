@@ -37,11 +37,13 @@ import com.app.mcc.activity.HomeActivity;
 import com.app.mcc.activity.StartActivity;
 import com.app.mcc.helper.Constants;
 import com.app.mcc.helper.FilePath;
+import com.bumptech.glide.Glide;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.onurkaganaldemir.ktoastlib.KToast;
 import com.treebo.internetavailabilitychecker.InternetAvailabilityChecker;
 import com.treebo.internetavailabilitychecker.InternetConnectivityListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,6 +75,7 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
     Dialog progressDialog;
     String UPLOAD_URL = Constants.DIRECTOR_URL + Constants.PROFILE_UPLOAD;
     String UPDATE_URL = Constants.DIRECTOR_URL + Constants.UPDATE_PROFILE;
+    String PROFILE_URL = Constants.DIRECTOR_URL + Constants.GET_PROFILE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,11 +116,7 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
         etLanguage.setEnabled(false);
         etCategory.setEnabled(false);
 
-        etName.setText(Constants.pref.getString("name", ""));
-        etEmail.setText(Constants.pref.getString("email", ""));
-        etPhone.setText(Constants.pref.getString("mobileno", ""));
-        etLanguage.setText(Constants.pref.getString("language", ""));
-        etCategory.setText(Constants.pref.getString("category", ""));
+        getProfile();
 
         ivEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,6 +152,103 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
 
             }
         });
+
+    }
+
+    private void getProfile() {
+
+        progressDialog = new Dialog(DirectorProfileActivity.this);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.setContentView(R.layout.custom_dialog_progress);
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        StringRequest request = new StringRequest(Request.Method.POST, PROFILE_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+
+                            if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("success")){
+                                String data = jsonObject.getString("message");
+                                JSONArray array = new JSONArray(data);
+                                JSONObject object = array.getJSONObject(0);
+
+                                String name = object.getString("name");
+                                String email = object.getString("email");
+                                String language = object.getString("language");
+                                String category = object.getString("category");
+                                String profile = object.getString("profileimage");
+
+                                etName.setText(name);
+                                etEmail.setText(email);
+                                etPhone.setText(Constants.pref.getString("mobileno", ""));
+                                etLanguage.setText(language);
+                                etCategory.setText(category);
+                                String profileImage = Constants.PROFILE_URL + profile;
+                                if (!profile.isEmpty()){
+                                    Glide.with(DirectorProfileActivity.this).load(profileImage).thumbnail(0.1f).into(ivProfile);
+                                }else {
+                                    Glide.with(DirectorProfileActivity.this).load(R.drawable.logo).thumbnail(0.1f).into(ivProfile);
+                                }
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("failed")){
+                                KToast.warningToast(DirectorProfileActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("empty")){
+                                KToast.warningToast(DirectorProfileActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+                            }else {
+                                KToast.errorToast(DirectorProfileActivity.this,
+                                        "Something Went Wrong!",
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            KToast.errorToast(DirectorProfileActivity.this,
+                                    e.getMessage(),
+                                    Gravity.BOTTOM,
+                                    KToast.LENGTH_SHORT);
+                        }
+
+                        progressDialog.hide();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        KToast.errorToast(DirectorProfileActivity.this,
+                                error.getMessage(),
+                                Gravity.BOTTOM,
+                                KToast.LENGTH_SHORT);
+                    }
+                })
+        {
+
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("mobileno", Constants.pref.getString("mobileno", ""));
+                return params;
+            }
+        };
+        queue.add(request);
 
     }
 
@@ -375,7 +471,7 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("success")){
-
+                                progressDialog.hide();
                                 startActivity(new Intent(DirectorProfileActivity.this, HomeActivity.class));
 
                                 KToast.successToast(DirectorProfileActivity.this,
@@ -385,20 +481,21 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
 
                             }else  if (jsonObject.getString("status")
                                     .equalsIgnoreCase("failed")){
-
+                                progressDialog.hide();
                                 KToast.errorToast(DirectorProfileActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
                             }else  if (jsonObject.getString("status")
                                     .equalsIgnoreCase("empty")){
-
+                                progressDialog.hide();
                                 KToast.errorToast(DirectorProfileActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
                             }
                             else {
+                                progressDialog.hide();
                                 KToast.errorToast(DirectorProfileActivity.this,
                                         "Something Went Wrong!",
                                         Gravity.BOTTOM,
@@ -408,18 +505,19 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
 
                         }catch (JSONException e){
                             e.printStackTrace();
+                            progressDialog.hide();
                             KToast.errorToast(DirectorProfileActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
-                        progressDialog.hide();
+
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progressDialog.hide();
                         KToast.errorToast(DirectorProfileActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,

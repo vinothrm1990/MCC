@@ -3,7 +3,7 @@
     package="com.app.mcc">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".helper.MCC"
@@ -46,8 +46,48 @@
         <activity
             android:name=".director.DirectorViewActivity"
             android:parentActivityName=".activity.HomeActivity" />
-        <activity android:name=".director.DirectorFeedbackActivity"
-            android:parentActivityName=".activity.HomeActivity"/>
+        <activity
+            android:name=".director.DirectorFeedbackActivity"
+            android:parentActivityName=".activity.HomeActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".director.DirectorWishlistDetailsActivity"
+            android:parentActivityName=".director.DirectorWishlistActivity" />
+        <activity
+            android:name=".director.DirectorMemberDetailsActivity"
+            android:parentActivityName=".director.DirectorViewActivity" />
+        <activity
+            android:name=".director.DirectorCategoryDetailsActivity"
+            android:parentActivityName=".director.DirectorViewActivity" />
+        <activity
+            android:name=".director.DirectorCategoryFullDetailsActivity"
+            android:parentActivityName=".director.DirectorCategoryDetailsActivity" />
+        <activity
+            android:name=".member.MemberPostActivity"
+            android:parentActivityName=".activity.HomeActivity" />
+        <activity
+            android:name=".member.MemberTrailerActivity"
+            android:parentActivityName=".activity.HomeActivity" />
+        <activity
+            android:name=".member.MemberTrailerPlayerActivity"
+            android:parentActivityName=".member.MemberTrailerActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".member.MemberRatingActivity"
+            android:parentActivityName=".activity.HomeActivity" />
+        <activity
+            android:name=".member.MemberLookActivity"
+            android:parentActivityName=".activity.HomeActivity" />
+        <activity
+            android:name=".member.MemberInterviewActivity"
+            android:parentActivityName=".activity.HomeActivity" />
+        <activity
+            android:name=".member.MemberInterviewPlayerActivity"
+            android:parentActivityName=".member.MemberInterviewActivity"
+            android:screenOrientation="landscape" />
+        <activity android:name=".member.MemberProfileActivity" />
+        <activity android:name=".member.MemberProfileEditActivity"
+            android:parentActivityName=".member.MemberProfileActivity"/>
     </application>
 
 </manifest>

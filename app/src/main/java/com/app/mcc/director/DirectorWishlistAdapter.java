@@ -1,6 +1,7 @@
 package com.app.mcc.director;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -46,7 +47,9 @@ public class DirectorWishlistAdapter extends RecyclerView.Adapter<DirectorWishli
             @Override
             public void onClick(View view) {
 
-
+                Intent intent = new Intent(mContext, DirectorWishlistDetailsActivity.class);
+                intent.putExtra("data", map);
+                mContext.startActivity(intent);
             }
         });
     }

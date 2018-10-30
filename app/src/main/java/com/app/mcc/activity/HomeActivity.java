@@ -44,10 +44,14 @@ import com.app.mcc.guest.GuestAboutFragment;
 import com.app.mcc.guest.GuestHomeFragment;
 import com.app.mcc.helper.Constants;
 import com.app.mcc.member.MemberHomeFragment;
+import com.app.mcc.member.MemberProfileActivity;
+import com.bumptech.glide.Glide;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.onurkaganaldemir.ktoastlib.KToast;
 import com.treebo.internetavailabilitychecker.InternetAvailabilityChecker;
 import com.treebo.internetavailabilitychecker.InternetConnectivityListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -67,6 +71,8 @@ public class HomeActivity extends AppCompatActivity
     RequestQueue queue;
     String CHANGE_URL = Constants.DIRECTOR_URL + Constants.CHANGE_PASSWORD;
     InternetAvailabilityChecker availabilityChecker;
+    String PROFILE_URL = Constants.DIRECTOR_URL + Constants.GET_PROFILE;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +124,8 @@ public class HomeActivity extends AppCompatActivity
         availabilityChecker = InternetAvailabilityChecker.getInstance();
         availabilityChecker.addInternetConnectivityListener(this);
 
+        getProfile();
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -125,7 +133,129 @@ public class HomeActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View headerLayout = navigationView.getHeaderView(0);
+        if (type.equalsIgnoreCase("director")){
+            TextView username = headerLayout.findViewById(R.id.director_tv);
+            CircularImageView userimage = headerLayout.findViewById(R.id.director_iv);
+            String image = Constants.PROFILE_URL + Constants.pref.getString("profileimage", "");
+            String name = Constants.pref.getString("name", "");
+            if (!image.isEmpty() || !name.isEmpty()){
+                username.setText(Constants.pref.getString("name", ""));
+                Glide.with(HomeActivity.this).load(image).thumbnail(0.1f).into(userimage);
+            }else {
+                username.setText("Director's Name");
+                Glide.with(HomeActivity.this).load(R.drawable.profile_logo).thumbnail(0.1f).into(userimage);
+            }
+        }else if (type.equalsIgnoreCase("member")){
+            TextView username= headerLayout.findViewById(R.id.member_tv);
+            CircularImageView userimage = headerLayout.findViewById(R.id.member_iv);
+            String image = Constants.PROFILE_URL + Constants.pref.getString("profileimage", "");
+            String name = Constants.pref.getString("name", "");
+            if (!image.isEmpty() || !name.isEmpty()){
+                username.setText(Constants.pref.getString("name", ""));
+                Glide.with(HomeActivity.this).load(image).thumbnail(0.1f).into(userimage);
+            }else {
+                username.setText("Member's Name");
+                Glide.with(HomeActivity.this).load(R.drawable.profile_logo).thumbnail(0.1f).into(userimage);
+            }
+        }else if (type.equalsIgnoreCase("guest")){
+            TextView username = headerLayout.findViewById(R.id.guest_tv);
+            username.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    startActivity(new Intent(HomeActivity.this, StartActivity.class));
+                    Bungee.fade(HomeActivity.this);
+                }
+            });
+        }
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void getProfile() {
+
+        progressDialog = new Dialog(HomeActivity.this);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.setContentView(R.layout.custom_dialog_progress);
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        StringRequest request = new StringRequest(Request.Method.POST, PROFILE_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+
+                            if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("success")){
+                                String data = jsonObject.getString("message");
+                                JSONArray array = new JSONArray(data);
+                                JSONObject object = array.getJSONObject(0);
+
+                                String name = object.getString("name");
+                                String profile = object.getString("profileimage");
+
+                                Constants.editor.putString("name", name);
+                                Constants.editor.putString("profileimage", profile);
+                                Constants.editor.apply();
+                                Constants.editor.commit();
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("failed")){
+                                KToast.warningToast(HomeActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("empty")){
+                                KToast.warningToast(HomeActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+                            }else {
+                                KToast.errorToast(HomeActivity.this,
+                                        "Something Went Wrong!",
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            KToast.errorToast(HomeActivity.this,
+                                    e.getMessage(),
+                                    Gravity.BOTTOM,
+                                    KToast.LENGTH_SHORT);
+                        }
+
+                        progressDialog.hide();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        KToast.errorToast(HomeActivity.this,
+                                error.getMessage(),
+                                Gravity.BOTTOM,
+                                KToast.LENGTH_SHORT);
+                    }
+                })
+        {
+
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("mobileno", Constants.pref.getString("mobileno", ""));
+                return params;
+            }
+        };
+        queue.add(request);
     }
 
     @Override
@@ -174,14 +304,12 @@ public class HomeActivity extends AppCompatActivity
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.content_frame, new GuestHomeFragment());
                 fragmentTransaction.commit();
-                Bungee.zoom(HomeActivity.this);
 
             } else if (id == R.id.nav_about) {
 
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.content_frame, new GuestAboutFragment());
                 fragmentTransaction.commit();
-                Bungee.zoom(HomeActivity.this);
 
             } else if (id == R.id.nav_exit) {
                 logoutDialog();
@@ -195,9 +323,11 @@ public class HomeActivity extends AppCompatActivity
                 fragmentTransaction.replace(R.id.content_frame, new DirectorHomeFragment());
                 fragmentTransaction.commit();
 
+
             } else if (id == R.id.nav_profile) {
 
                 startActivity(new Intent(HomeActivity.this, DirectorProfileActivity.class));
+                Bungee.zoom(HomeActivity.this);
                 Bungee.zoom(HomeActivity.this);
 
             }else if (id == R.id.nav_post) {
@@ -233,8 +363,15 @@ public class HomeActivity extends AppCompatActivity
         } else if (type.equalsIgnoreCase("member")) {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                // Handle the camera action
+
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content_frame, new MemberHomeFragment());
+                fragmentTransaction.commit();
+
             } else if (id == R.id.nav_profile) {
+
+                startActivity(new Intent(HomeActivity.this, MemberProfileActivity.class));
+                Bungee.zoom(HomeActivity.this);
 
             }else if (id == R.id.nav_upload) {
 
