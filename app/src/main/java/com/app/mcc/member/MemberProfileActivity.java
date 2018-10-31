@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -61,14 +62,16 @@ import java.util.Map;
 
 public class MemberProfileActivity extends AppCompatActivity implements InternetConnectivityListener {
 
-    ImageView ivEdit;
+    ImageView ivEdit, ivPhoto, ivAudio, ivVideo;
     CircularImageView ivProfile;
     AppCompatEditText etName, etEmail, etFb;
     TextView tvPhone, tvCategory;
     InternetAvailabilityChecker availabilityChecker;
     RequestQueue queue;
     Dialog progressDialog;
-    String PROFILE_URL = Constants.DIRECTOR_URL + Constants.GET_PROFILE;
+    String photo, audio, video;
+    MediaPlayer mediaPlayer;
+    String PROFILE_URL = Constants.MEMBER_URL + Constants.GET_PROFILE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,10 +103,79 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
         etFb = findViewById(R.id.mem_profile_fb);
         tvPhone = findViewById(R.id.mem_profile_phone);
         tvCategory = findViewById(R.id.mem_profile_cat);
+        ivPhoto = findViewById(R.id.mem_profile_view_photo);
+        ivAudio = findViewById(R.id.mem_profile_view_audio);
+        ivVideo = findViewById(R.id.mem_profile_view_video);
 
         queue = Volley.newRequestQueue(this);
 
         getProfile();
+
+        ivPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (!photo.isEmpty()){
+                    Intent intent = new Intent(MemberProfileActivity.this, MemberImageViewActivity.class);
+                    intent.putExtra("url", photo);
+                    startActivity(intent);
+                }else {
+                    KToast.infoToast(MemberProfileActivity.this,
+                            "No Image Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
+            }
+        });
+
+        ivAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (!audio.isEmpty()){
+
+                    boolean isPlaying = false;
+                    String audiofile = Constants.MEM_AUDIO_URL + audio;
+                    if (!isPlaying){
+
+                        isPlaying = true;
+                        mediaPlayer = new MediaPlayer();
+                        try{
+                            mediaPlayer.setDataSource(audiofile);
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }else {
+                        isPlaying = false;
+                        stopPlaying();
+                    }
+                }else {
+                    KToast.infoToast(MemberProfileActivity.this,
+                            "No Audio Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
+            }
+        });
+
+        ivVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (!video.isEmpty()){
+                    Intent intent = new Intent(MemberProfileActivity.this, MemberVideoViewActivity.class);
+                    intent.putExtra("url", video);
+                    startActivity(intent);
+                }else {
+                    KToast.infoToast(MemberProfileActivity.this,
+                            "No Video Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
+            }
+        });
 
         ivEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,6 +185,12 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
             }
         });
 
+    }
+
+    private void stopPlaying() {
+
+        mediaPlayer.release();
+        mediaPlayer = null;
     }
 
     private void getProfile() {
@@ -140,17 +218,24 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
                                 JSONArray array = new JSONArray(data);
                                 JSONObject object = array.getJSONObject(0);
 
-                                String name = object.getString("name");
+                                String fname = object.getString("f_name");
+                                String lname = object.getString("l_name");
+                                String fid = object.getString("fb_id");
                                 String email = object.getString("email");
+                                String mobile = object.getString("contact");
                                 String category = object.getString("category");
-                                String profile = object.getString("profileimage");
+                                String profile = object.getString("profile");
+                                photo = object.getString("upload_pic");
+                                audio = object.getString("upload_audio");
+                                video = object.getString("video");
 
-                                etName.setText(name);
+                                etName.setText(fname + "" + lname);
                                 etEmail.setText(email);
-                                tvPhone.setText(Constants.pref.getString("mobileno", ""));
+                                tvPhone.setText(mobile);
                                 tvCategory.setText(category);
+                                etFb.setText(fid);
 
-                                String profileImage = Constants.PROFILE_URL + profile;
+                                String profileImage = Constants.MEM_PROFILE_URL + profile;
                                 if (!profile.isEmpty()){
                                     Glide.with(MemberProfileActivity.this).load(profileImage).thumbnail(0.1f).into(ivProfile);
                                 }else {
@@ -208,13 +293,12 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
             protected Map<String, String> getParams()
             {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("mobileno", Constants.pref.getString("mobileno", ""));
+                params.put("mobileno", Constants.pref.getString("phone", ""));
                 return params;
             }
         };
         queue.add(request);
     }
-
 
     @Override
     protected void onDestroy() {

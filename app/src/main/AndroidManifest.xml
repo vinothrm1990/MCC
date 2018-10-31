@@ -85,8 +85,14 @@
             android:name=".member.MemberInterviewPlayerActivity"
             android:parentActivityName=".member.MemberInterviewActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".member.MemberProfileActivity" />
-        <activity android:name=".member.MemberProfileEditActivity"
+        <activity android:name=".member.MemberProfileActivity"
+            android:parentActivityName=".activity.HomeActivity"/>
+        <activity
+            android:name=".member.MemberProfileEditActivity"
+            android:parentActivityName=".member.MemberProfileActivity" />
+        <activity android:name=".member.MemberImageViewActivity"
+            android:parentActivityName=".member.MemberProfileActivity"/>
+        <activity android:name=".member.MemberVideoViewActivity"
             android:parentActivityName=".member.MemberProfileActivity"/>
     </application>
 

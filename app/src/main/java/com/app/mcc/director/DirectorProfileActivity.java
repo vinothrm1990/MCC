@@ -34,7 +34,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.app.mcc.R;
 import com.app.mcc.activity.HomeActivity;
-import com.app.mcc.activity.StartActivity;
 import com.app.mcc.helper.Constants;
 import com.app.mcc.helper.FilePath;
 import com.bumptech.glide.Glide;
@@ -137,7 +136,7 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
 
                 name = etName.getText().toString().trim();
                 if (!isValidName(name)){
-                    etPhone.setError("Invalid Number");
+                    etName.setError("Name Field is Empty");
                     validation =  true;
                 }
                 email = etEmail.getText().toString().trim();
@@ -190,7 +189,7 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
                                 etPhone.setText(Constants.pref.getString("mobileno", ""));
                                 etLanguage.setText(language);
                                 etCategory.setText(category);
-                                String profileImage = Constants.PROFILE_URL + profile;
+                                String profileImage = Constants.DIR_PROFILE_URL + profile;
                                 if (!profile.isEmpty()){
                                     Glide.with(DirectorProfileActivity.this).load(profileImage).thumbnail(0.1f).into(ivProfile);
                                 }else {

@@ -66,7 +66,7 @@ public class MemberPostAdapter extends RecyclerView.Adapter<MemberPostAdapter.My
 
         holder.tvTitle.setText(map.get("title"));
         holder.tvName.setText(map.get("name"));
-        Glide.with(mContext).load(Constants.PROFILE_URL + map.get("profileimage")).thumbnail(0.1f).into(holder.cvProfile);
+        Glide.with(mContext).load(Constants.DIR_PROFILE_URL + map.get("profileimage")).thumbnail(0.1f).into(holder.cvProfile);
         Glide.with(mContext).load(Constants.POST_IMAGE_URL + map.get("image")).thumbnail(0.1f).into(holder.ivImage);
 
         DOWNLOAD_URL = Constants.POST_IMAGE_URL + map.get("image");

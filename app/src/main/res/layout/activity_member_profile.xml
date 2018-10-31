@@ -228,7 +228,8 @@
                             android:layout_marginRight="20dp"
                             android:layout_marginBottom="15dp"
                             android:textSize="18sp"
-                            android:gravity="left"                            android:textColor="#000"
+                            android:gravity="left"
+                            android:textColor="#000"
                             android:fontFamily="@font/sans_regular"
                             android:background="@android:color/transparent" />
                     </LinearLayout>
@@ -279,21 +280,21 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
                         <ImageView
-                            android:id="@+id/mem_profile_photo"
+                            android:id="@+id/mem_profile_view_photo"
                             android:gravity="center"
                             android:layout_weight="1"
                             android:src="@drawable/ic_photo"
                             android:layout_width="match_parent"
                             android:layout_height="50dp" />
                         <ImageView
-                            android:id="@+id/mem_profile_audio"
+                            android:id="@+id/mem_profile_view_audio"
                             android:gravity="center"
                             android:src="@drawable/ic_audio"
                             android:layout_weight="1"
                             android:layout_width="match_parent"
                             android:layout_height="50dp" />
                         <ImageView
-                            android:id="@+id/mem_profile_video"
+                            android:id="@+id/mem_profile_view_video"
                             android:gravity="center"
                             android:src="@drawable/ic_video"
                             android:layout_weight="1"

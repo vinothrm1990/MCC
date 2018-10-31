@@ -57,7 +57,6 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.StreamHandler;
 
 import spencerstudios.com.bungeelib.Bungee;
 
@@ -137,7 +136,7 @@ public class HomeActivity extends AppCompatActivity
         if (type.equalsIgnoreCase("director")){
             TextView username = headerLayout.findViewById(R.id.director_tv);
             CircularImageView userimage = headerLayout.findViewById(R.id.director_iv);
-            String image = Constants.PROFILE_URL + Constants.pref.getString("profileimage", "");
+            String image = Constants.DIR_PROFILE_URL + Constants.pref.getString("profileimage", "");
             String name = Constants.pref.getString("name", "");
             if (!image.isEmpty() || !name.isEmpty()){
                 username.setText(Constants.pref.getString("name", ""));
@@ -149,7 +148,7 @@ public class HomeActivity extends AppCompatActivity
         }else if (type.equalsIgnoreCase("member")){
             TextView username= headerLayout.findViewById(R.id.member_tv);
             CircularImageView userimage = headerLayout.findViewById(R.id.member_iv);
-            String image = Constants.PROFILE_URL + Constants.pref.getString("profileimage", "");
+            String image = Constants.DIR_PROFILE_URL + Constants.pref.getString("profileimage", "");
             String name = Constants.pref.getString("name", "");
             if (!image.isEmpty() || !name.isEmpty()){
                 username.setText(Constants.pref.getString("name", ""));
