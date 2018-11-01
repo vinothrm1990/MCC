@@ -98,15 +98,12 @@
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <android.support.design.widget.FloatingActionButton
+                    <ImageView
                         android:id="@+id/mem_post_download"
-                        card_view:fabSize="mini"
-                        android:fadingEdge="none"
-                        card_view:backgroundTint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_download"
+                        android:src="@drawable/ic_view"
                         android:layout_weight="1"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="35dp" />
                 </LinearLayout>
             </LinearLayout>
         </RelativeLayout>

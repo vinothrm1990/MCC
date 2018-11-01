@@ -222,8 +222,9 @@ public class DirectorLoginFragment extends Fragment {
                         try {
                             jsonObject = new JSONObject(response);
 
-                            if (jsonObject.getString("status").equalsIgnoreCase("success")){
-
+                            if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("success")){
+                                progressDialog.hide();
                                 String type = jsonObject.getString("type");
                                 Constants.editor.putString("type", type);
                                 Constants.editor.putBoolean("isLogged", true);
@@ -239,11 +240,14 @@ public class DirectorLoginFragment extends Fragment {
                                     String password = object.getString("password");
                                     String name = object.getString("name");
                                     String email = object.getString("email");
+                                    String profile = object.getString("profileimage");
+
                                     Constants.editor.putString("id", id);
                                     Constants.editor.putString("mobileno", mobile);
                                     Constants.editor.putString("password", password);
                                     Constants.editor.putString("name", name);
                                     Constants.editor.putString("email", email);
+                                    Constants.editor.putString("profileimage", profile);
                                     Constants.editor.apply();
                                     Constants.editor.commit();
                                 }
@@ -254,23 +258,31 @@ public class DirectorLoginFragment extends Fragment {
                                         KToast.LENGTH_SHORT);
                                 startActivity(new Intent(getActivity(), HomeActivity.class));
 
-                            }else {
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("failed")){
+                                progressDialog.hide();
                                 KToast.errorToast(getActivity(),
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
 
+                            }else {
+                                progressDialog.hide();
+                                KToast.errorToast(getActivity(),
+                                        "Something went Wrong!",
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            progressDialog.hide();
                             KToast.errorToast(getActivity(),
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_LONG);
                         }
 
-                        progressDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {

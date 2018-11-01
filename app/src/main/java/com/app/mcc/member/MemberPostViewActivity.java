@@ -27,7 +27,7 @@ import com.onurkaganaldemir.ktoastlib.KToast;
 import com.treebo.internetavailabilitychecker.InternetAvailabilityChecker;
 import com.treebo.internetavailabilitychecker.InternetConnectivityListener;
 
-public class MemberImageViewActivity extends AppCompatActivity implements InternetConnectivityListener {
+public class MemberPostViewActivity extends AppCompatActivity implements InternetConnectivityListener {
 
     InternetAvailabilityChecker availabilityChecker;
     ImageView ivImage;
@@ -36,23 +36,34 @@ public class MemberImageViewActivity extends AppCompatActivity implements Intern
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
-        setContentView(R.layout.activity_member_image_view);
+        setContentView(R.layout.activity_member_post_view);
 
         availabilityChecker = InternetAvailabilityChecker.getInstance();
         availabilityChecker.addInternetConnectivityListener(this);
 
-        ivImage = findViewById(R.id.mem_image_view);
+        TextView title = new TextView(getApplicationContext());
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
+        title.setLayoutParams(layoutParams);
+        title.setText("DIRECTOR'S POST");
+        title.setTextSize(20);
+        title.setTextColor(Color.parseColor("#FFFFFF"));
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sans_bold.ttf");
+        title.setTypeface(font);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setCustomView(title);
 
-        Intent intent = getIntent();
-        String image = Constants.MEM_PHOTO_URL + intent.getStringExtra("url");
+        ivImage = findViewById(R.id.mem_post_view);
 
-        progressDialog = new Dialog(MemberImageViewActivity.this);
+        progressDialog = new Dialog(MemberPostViewActivity.this);
         progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         progressDialog.setContentView(R.layout.custom_dialog_progress);
         progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         progressDialog.setCancelable(false);
         progressDialog.show();
+
+        Intent intent = getIntent();
+        String image = Constants.POST_IMAGE_URL + intent.getStringExtra("image");
 
         if (!image.isEmpty()){
             Glide.with(this).load(image).listener(new RequestListener<Drawable>() {
@@ -70,11 +81,14 @@ public class MemberImageViewActivity extends AppCompatActivity implements Intern
             }).into(ivImage);
         }else {
             Glide.with(this).load(R.drawable.empty_image).into(ivImage);
-            KToast.infoToast(MemberImageViewActivity.this,
+            KToast.infoToast(MemberPostViewActivity.this,
                     "No Image Available",
                     Gravity.BOTTOM,
                     KToast.LENGTH_SHORT);
         }
+
+
+
     }
 
 
@@ -87,7 +101,7 @@ public class MemberImageViewActivity extends AppCompatActivity implements Intern
     @Override
     public void onInternetConnectivityChanged(boolean isConnected) {
         if (!isConnected) {
-            KToast.warningToast(MemberImageViewActivity.this,
+            KToast.warningToast(MemberPostViewActivity.this,
                     "Check your Internet Connection",
                     Gravity.BOTTOM,
                     KToast.LENGTH_SHORT);

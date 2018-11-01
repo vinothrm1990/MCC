@@ -85,15 +85,28 @@
             android:name=".member.MemberInterviewPlayerActivity"
             android:parentActivityName=".member.MemberInterviewActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".member.MemberProfileActivity"
-            android:parentActivityName=".activity.HomeActivity"/>
+        <activity
+            android:name=".member.MemberProfileActivity"
+            android:parentActivityName=".activity.HomeActivity" />
         <activity
             android:name=".member.MemberProfileEditActivity"
             android:parentActivityName=".member.MemberProfileActivity" />
-        <activity android:name=".member.MemberImageViewActivity"
-            android:parentActivityName=".member.MemberProfileActivity"/>
-        <activity android:name=".member.MemberVideoViewActivity"
-            android:parentActivityName=".member.MemberProfileActivity"/>
+        <activity
+            android:name=".member.MemberImageViewActivity"
+            android:parentActivityName=".member.MemberProfileActivity" />
+        <activity
+            android:name=".member.MemberVideoViewActivity"
+            android:configChanges="screenLayout|screenSize|orientation"
+            android:parentActivityName=".member.MemberProfileActivity" />
+        <activity
+            android:name=".member.MemberUploadActivity"
+            android:parentActivityName=".activity.HomeActivity" />
+        <activity
+            android:name=".member.MemberFeedbackActivity"
+            android:parentActivityName=".activity.HomeActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".member.MemberPostViewActivity"
+            android:parentActivityName=".activity.HomeActivity"/>
     </application>
 
 </manifest>

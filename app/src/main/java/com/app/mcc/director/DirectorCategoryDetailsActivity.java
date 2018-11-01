@@ -45,7 +45,7 @@ public class DirectorCategoryDetailsActivity extends AppCompatActivity implement
     RequestQueue queue;
     HashMap<String, String> map;
     Dialog progressDialog;
-    String memid;
+    String mapData;
     InternetAvailabilityChecker availabilityChecker;
     String CATEGORY_URL = Constants.DIRECTOR_URL + Constants.GET_CATEGORY_MEMBER;
 
@@ -74,6 +74,16 @@ public class DirectorCategoryDetailsActivity extends AppCompatActivity implement
         getSupportActionBar().setCustomView(title);
 
         map = (HashMap<String, String>) getIntent().getExtras().get("data");
+
+        if (!map.isEmpty()){
+            mapData = map.get("title");
+            Constants.editor.putString("mapData", map.get("title"));
+            Constants.editor.apply();
+            Constants.editor.commit();
+        }else {
+           mapData = Constants.pref.getString("mapdata", "");
+        }
+
         queue = Volley.newRequestQueue(DirectorCategoryDetailsActivity.this);
 
         categoryList = new ArrayList<>();
@@ -187,7 +197,7 @@ public class DirectorCategoryDetailsActivity extends AppCompatActivity implement
             protected Map<String, String> getParams()
             {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("cat", map.get("title"));
+                params.put("cat", mapData);
                 return params;
             }
 

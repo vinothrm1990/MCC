@@ -113,7 +113,7 @@ public class MemberHomeFragment extends Fragment {
                                 recyclerView.setAdapter(homeAdapter);
 
                             }else if(jsonObject.getString("status")
-                                    .equalsIgnoreCase("empty")){
+                                    .equalsIgnoreCase("failed")){
                                 progressDialog.hide();
                                 KToast.errorToast(getActivity(),
                                         jsonObject.getString("message"),
@@ -121,7 +121,7 @@ public class MemberHomeFragment extends Fragment {
                                         KToast.LENGTH_SHORT);
 
                             }else if (jsonObject.getString("status")
-                                    .equalsIgnoreCase("failed")){
+                                    .equalsIgnoreCase("empty")){
                                 progressDialog.hide();
                                 KToast.errorToast(getActivity(),
                                         jsonObject.getString("message"),

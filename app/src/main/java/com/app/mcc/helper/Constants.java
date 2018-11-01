@@ -53,4 +53,5 @@ public class Constants {
     public static String GET_LOOK = "get_look.php?";
     public static String GET_INTERVIEW = "get_interview.php?";
     public static String GET_CATEGORY_MEMBER = "get_category_member.php?";
+    public static String UPLOAD_MEDIA = "upload_media.php?";
 }

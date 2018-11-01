@@ -223,51 +223,63 @@ public class MemberLoginFragment extends Fragment {
                         try {
                             jsonObject = new JSONObject(response);
 
-                            if (jsonObject.getString("status").equalsIgnoreCase("success")){
-
+                            if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("success")){
+                                progressDialog.hide();
                                 String type = jsonObject.getString("type");
                                 String data = jsonObject.getString("message");
                                 JSONArray array = new JSONArray(data);
                                 JSONObject jsonData = array.getJSONObject(0);
 
+                                String profile = jsonData.getString("profile");
                                 Constants.editor.putBoolean("isLogged", true);
                                 Constants.editor.putString("id", jsonData.getString("id"));
                                 Constants.editor.putString("fname", jsonData.getString("f_name"));
                                 Constants.editor.putString("lname", jsonData.getString("l_name"));
                                 Constants.editor.putString("email", jsonData.getString("email"));
-                                Constants.editor.putString("phone", jsonData.getString("contact"));
+                                Constants.editor.putString("phone", jsonData.getString("mobileno"));
+                                Constants.editor.putString("password", jsonData.getString("password"));
                                 Constants.editor.putString("gender", jsonData.getString("gender"));
                                 Constants.editor.putString("category", jsonData.getString("category"));
                                 Constants.editor.putString("type", type);
+                                Constants.editor.putString("profile", profile);
                                 Constants.editor.commit();
                                 Constants.editor.apply();
 
                                 startActivity(new Intent(getActivity(), HomeActivity.class));
 
-                            }else {
-
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("failed")){
+                                progressDialog.hide();
                                 KToast.errorToast(getActivity(),
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
                             }
+                            else{
+                                progressDialog.hide();
+                                KToast.errorToast(getActivity(),
+                                        "Something went Wrong!",
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
+                            }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-
+                            progressDialog.hide();
                             KToast.errorToast(getActivity(),
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-                        progressDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progressDialog.hide();
                         KToast.errorToast(getActivity(),error.getMessage(),
                                 Gravity.BOTTOM,
                                 KToast.LENGTH_SHORT);

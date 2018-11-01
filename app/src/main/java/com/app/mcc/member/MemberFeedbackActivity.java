@@ -1,4 +1,4 @@
-package com.app.mcc.director;
+package com.app.mcc.member;
 
 import android.app.ActionBar;
 import android.app.Dialog;
@@ -22,31 +22,31 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.app.mcc.R;
+import com.app.mcc.director.DirectorFeedbackActivity;
 import com.app.mcc.helper.Constants;
 import com.onurkaganaldemir.ktoastlib.KToast;
 import com.treebo.internetavailabilitychecker.InternetAvailabilityChecker;
 import com.treebo.internetavailabilitychecker.InternetConnectivityListener;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class DirectorFeedbackActivity extends AppCompatActivity implements InternetConnectivityListener {
+public class MemberFeedbackActivity extends AppCompatActivity implements InternetConnectivityListener {
 
     AppCompatEditText etTitle, etDesc;
     Button btnSubmit;
     InternetAvailabilityChecker availabilityChecker;
     RequestQueue queue;
     Dialog progressDialog;
-    String FEEDBACK_URL = Constants.DIRECTOR_URL + Constants.SEND_FEEDBACK;
+    String FEEDBACK_URL = Constants.MEMBER_URL + Constants.SEND_FEEDBACK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_director_feedback);
+        setContentView(R.layout.activity_member_feedback);
 
         availabilityChecker = InternetAvailabilityChecker.getInstance();
         availabilityChecker.addInternetConnectivityListener(this);
@@ -99,7 +99,7 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
 
     private void sendFeedback() {
 
-        progressDialog = new Dialog(DirectorFeedbackActivity.this);
+        progressDialog = new Dialog(MemberFeedbackActivity.this);
         progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         progressDialog.setContentView(R.layout.custom_dialog_progress);
         progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -118,7 +118,7 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("success")){
                                 progressDialog.hide();
-                                KToast.successToast(DirectorFeedbackActivity.this,
+                                KToast.successToast(MemberFeedbackActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
@@ -127,14 +127,14 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("failed")){
                                 progressDialog.hide();
-                                KToast.errorToast(DirectorFeedbackActivity.this,
+                                KToast.errorToast(MemberFeedbackActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
 
                             }else {
                                 progressDialog.hide();
-                                KToast.errorToast(DirectorFeedbackActivity.this,
+                                KToast.errorToast(MemberFeedbackActivity.this,
                                         "Something went Wrong",
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
@@ -144,7 +144,7 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
                         } catch (JSONException e) {
                             e.printStackTrace();
                             progressDialog.hide();
-                            KToast.errorToast(DirectorFeedbackActivity.this,
+                            KToast.errorToast(MemberFeedbackActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
@@ -156,7 +156,7 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         progressDialog.hide();
-                        KToast.errorToast(DirectorFeedbackActivity.this,
+                        KToast.errorToast(MemberFeedbackActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
                                 KToast.LENGTH_SHORT);
@@ -171,10 +171,10 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
                 String desc = etDesc.getText().toString().trim();
 
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("fname", Constants.pref.getString("name", ""));
+                params.put("fname", Constants.pref.getString("fname", ""));
                 params.put("type", Constants.pref.getString("type", ""));
                 params.put("email", Constants.pref.getString("email", ""));
-                params.put("mobileno", Constants.pref.getString("mobileno", ""));
+                params.put("mobileno", Constants.pref.getString("phone", ""));
                 params.put("title", title);
                 params.put("desc", desc);
                 return params;
@@ -193,7 +193,7 @@ public class DirectorFeedbackActivity extends AppCompatActivity implements Inter
     @Override
     public void onInternetConnectivityChanged(boolean isConnected) {
         if (!isConnected) {
-            KToast.warningToast(DirectorFeedbackActivity.this, "Check your Internet Connection",
+            KToast.warningToast(MemberFeedbackActivity.this, "Check your Internet Connection",
                     Gravity.BOTTOM,
                     KToast.LENGTH_LONG);
         }

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ActionBar;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -75,13 +76,10 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
             etDate, etProfile;
     TextView etDob;
     ImageButton ibBio, ibImage;
-    ImageView ivVideo, ivAudio, ivPhoto, ivBioVerified, ivProfileVerfied, ivAudioVerified, ivPhotoVerified, ivVideoVerified;
+    ImageView ivBioVerified, ivProfileVerfied;
     Button btnUpdate;
     public static final int PROFILE_REQUEST = 1;
     public static final int BIO_REQUEST = 2;
-    public static final int AUDIO_REQUEST = 3;
-    public static final int VIDEO_REQUEST = 4;
-    public static final int PHOTO_REQUEST = 5;
     public static final int PERMISSION_CODE = 6;
     Bitmap bitmap;
     String path, fname, lname, mobile, email, dob, age, qualify, mid, fid, address, city, pincode, about, lang, achive, indus, cv, fav, date, profile;
@@ -93,9 +91,6 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
     String profilefilename, biofilename, audiofilename, videofilename, photofilename, gender;
     String PROFILE_URL = Constants.MEMBER_URL + Constants.PROFILE_UPLOAD;
     String BIO_URL = Constants.MEMBER_URL + Constants.BIO_UPLOAD;
-    String PHOTO_URL = Constants.MEMBER_URL + Constants.PHOTO_UPLOAD;
-    String VIDEO_URL = Constants.MEMBER_URL + Constants.VIDEO_UPLOAD;
-    String AUDIO_URL = Constants.MEMBER_URL + Constants.AUDIO_UPLOAD;
     String UPDATE_URL = Constants.MEMBER_URL + Constants.UPDATE_PROFILE;
     String GET_URL = Constants.MEMBER_URL + Constants.GET_PROFILE;
     String myFormat = "yyyy-MM-dd";
@@ -146,17 +141,11 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
         etFav = findViewById(R.id.mem_profile_fav);
         etDate = findViewById(R.id.mem_profile_rdate);
         etProfile = findViewById(R.id.mem_profile_image);
-        ivAudio = findViewById(R.id.mem_profile_audio);
-        ivVideo = findViewById(R.id.mem_profile_video);
-        ivPhoto= findViewById(R.id.mem_profile_photo);
         ibBio = findViewById(R.id.mem_profile_upload_cv);
         ibImage = findViewById(R.id.mem_profile_upload_profile);
         btnUpdate = findViewById(R.id.mem_profile_update);
         ivBioVerified = findViewById(R.id.mem_profile_cv_verified);
         ivProfileVerfied = findViewById(R.id.mem_profile_image_verified);
-        ivPhotoVerified = findViewById(R.id.mem_profile_photo_verified);
-        ivAudioVerified = findViewById(R.id.mem_profile_audio_verified);
-        ivVideoVerified = findViewById(R.id.mem_profile_video_verified);
         cbMale = findViewById(R.id.mem_profile_male);
         cbFemale = findViewById(R.id.mem_profile_female);
 
@@ -207,52 +196,6 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
             }
         });
 
-        ivPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                    Constants.editor.remove("photo");
-                    Constants.editor.apply();
-                    Constants.editor.commit();
-
-                    Intent intent = new Intent();
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_PICK);
-                    startActivityForResult(Intent.createChooser(intent, "Select Image"), PHOTO_REQUEST);
-
-
-            }
-        });
-
-        ivAudio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Constants.editor.remove("audio");
-                Constants.editor.apply();
-                Constants.editor.commit();
-
-                Intent intent = new Intent();
-                intent.setType("audio/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Audio"), AUDIO_REQUEST);
-            }
-        });
-
-        ivVideo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Constants.editor.remove("video");
-                Constants.editor.apply();
-                Constants.editor.commit();
-
-                Intent intent = new Intent();
-                intent.setType("video/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Video"), VIDEO_REQUEST);
-            }
-        });
 
         calendar = Calendar.getInstance();
 
@@ -442,9 +385,6 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
                                 String date = object.getString("member_ship_date");
                                 String bio = object.getString("upload_biodata");
                                 String profile = object.getString("profile");
-                                String photo = object.getString("upload_pic");
-                                String audio = object.getString("upload_audio");
-                                String video = object.getString("video");
 
                                 etFName.setText(fname);
                                 etLName.setText(lname);
@@ -469,6 +409,7 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
                                 etCv.setText(bio);
                                 etDob.setText(date);
 
+
                                 if (gender.equalsIgnoreCase("Male")){
                                     cbMale.setChecked(true);
                                     cbFemale.setChecked(false);
@@ -476,21 +417,7 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
                                     cbMale.setChecked(false);
                                     cbFemale.setChecked(true);
                                 }
-                                if (!photo.isEmpty()){
-                                    Constants.editor.putString("photo", photo);
-                                    Constants.editor.apply();
-                                    Constants.editor.commit();
-                                }
-                                if (!audio.isEmpty()){
-                                    Constants.editor.putString("audio", audio);
-                                    Constants.editor.apply();
-                                    Constants.editor.commit();
-                                }
-                                if (!video.isEmpty()){
-                                    Constants.editor.putString("video", video);
-                                    Constants.editor.apply();
-                                    Constants.editor.commit();
-                                }
+
 
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("failed")){
@@ -608,493 +535,6 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-        }else if (requestCode == AUDIO_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
-
-            filePath = data.getData();
-            path = FilePath.getPath(this, filePath);
-            if (path != null && !path.equals("")){
-                audiofilename = path.substring(path.lastIndexOf("/")+1);
-            }
-            try{
-                InputStream inputStream = getContentResolver().openInputStream(filePath);
-                bitmap = BitmapFactory.decodeStream(inputStream);
-                uploadAudio();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }else if (requestCode == PHOTO_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
-
-            filePath = data.getData();
-            path = FilePath.getPath(this, filePath);
-            if (path != null && !path.equals("")){
-                photofilename = path.substring(path.lastIndexOf("/")+1);
-            }
-            try{
-                InputStream inputStream = getContentResolver().openInputStream(filePath);
-                bitmap = BitmapFactory.decodeStream(inputStream);
-                uploadPhoto();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }else if (requestCode == VIDEO_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
-
-            filePath = data.getData();
-            path = FilePath.getPath(this, filePath);
-            if (path != null && !path.equals("")){
-                videofilename = path.substring(path.lastIndexOf("/")+1);
-            }
-            try{
-                InputStream inputStream = getContentResolver().openInputStream(filePath);
-                bitmap = BitmapFactory.decodeStream(inputStream);
-                uploadVideo();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void uploadVideo() {
-
-        progressDialog = new Dialog(MemberProfileEditActivity.this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setContentView(R.layout.custom_dialog_progress);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //creating new thread to handle Http Operations
-                uploadVideo(path);
-            }
-        }).start();
-    }
-
-    private int uploadVideo(final String path) {
-
-        int serverResponseCode = 0;
-
-        HttpURLConnection connection;
-        DataOutputStream dataOutputStream;
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "*****";
-
-        int bytesRead,bytesAvailable,bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1 * 1024 * 1024;
-        File selectedFile = new File(path);
-
-        String[] parts = path.split("/");
-        final String fileName = parts[parts.length-1];
-
-        if (!selectedFile.isFile()){
-            progressDialog.hide();
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    KToast.warningToast(MemberProfileEditActivity.this,
-                            "Source File Doesn't Exist :" + path,
-                            Gravity.BOTTOM,
-                            KToast.LENGTH_SHORT);
-                }
-            });
-            return 0;
-        }else{
-            try{
-                FileInputStream fileInputStream = new FileInputStream(selectedFile);
-                URL url = new URL(VIDEO_URL);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);//Allow Inputs
-                connection.setDoOutput(true);//Allow Outputs
-                connection.setUseCaches(false);//Don't use a cached Copy
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setRequestProperty("ENCTYPE", "multipart/form-data");
-                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-                connection.setRequestProperty("uploaded_file",path);
-
-                //creating new dataoutputstream
-                dataOutputStream = new DataOutputStream(connection.getOutputStream());
-
-                //writing bytes to data outputstream
-                dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
-                        + path + "\"" + lineEnd);
-
-                dataOutputStream.writeBytes(lineEnd);
-
-                //returns no. of bytes present in fileInputStream
-                bytesAvailable = fileInputStream.available();
-                //selecting the buffer size as minimum of available bytes or 1 MB
-                bufferSize = Math.min(bytesAvailable,maxBufferSize);
-                //setting the buffer as byte array of size of bufferSize
-                buffer = new byte[bufferSize];
-
-                //reads bytes from FileInputStream(from 0th index of buffer to buffersize)
-                bytesRead = fileInputStream.read(buffer,0,bufferSize);
-
-                //loop repeats till bytesRead = -1, i.e., no bytes are left to read
-                while (bytesRead > 0){
-                    //write the bytes read from inputstream
-                    dataOutputStream.write(buffer,0,bufferSize);
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable,maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer,0,bufferSize);
-                }
-
-                dataOutputStream.writeBytes(lineEnd);
-                dataOutputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                serverResponseCode = connection.getResponseCode();
-                String serverResponseMessage = connection.getResponseMessage();
-
-                Log.i("TAG", "Server Response is: " + serverResponseMessage + ": " + serverResponseCode);
-
-                //response code of 200 indicates the server status OK
-                if(serverResponseCode == 200){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ivVideo.setVisibility(View.GONE);
-                            ivVideoVerified.setVisibility(View.VISIBLE);
-                            KToast.successToast(MemberProfileEditActivity.this,
-                                    "Video Uploaded : " + fileName,
-                                    Gravity.BOTTOM,
-                                    KToast.LENGTH_SHORT);
-                        }
-                    });
-                }
-                //closing the input and output streams
-                fileInputStream.close();
-                dataOutputStream.flush();
-                dataOutputStream.close();
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        KToast.errorToast(MemberProfileEditActivity.this,
-                                "File not Found" + fileName,
-                                Gravity.BOTTOM,
-                                KToast.LENGTH_SHORT);
-                    }
-                });
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                KToast.errorToast(MemberProfileEditActivity.this,
-                        "URL Error" + fileName,
-                        Gravity.BOTTOM,
-                        KToast.LENGTH_SHORT);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                KToast.errorToast(MemberProfileEditActivity.this,
-                        "Cannot Read/Write File" + fileName,
-                        Gravity.BOTTOM,
-                        KToast.LENGTH_SHORT);
-            }
-            progressDialog.dismiss();
-            return serverResponseCode;
-        }
-    }
-
-    private void uploadPhoto() {
-
-        progressDialog = new Dialog(MemberProfileEditActivity.this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setContentView(R.layout.custom_dialog_progress);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //creating new thread to handle Http Operations
-                uploadPhoto(path);
-            }
-        }).start();
-    }
-
-    private int uploadPhoto(final String path) {
-
-        int serverResponseCode = 0;
-
-        HttpURLConnection connection;
-        DataOutputStream dataOutputStream;
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "*****";
-
-        int bytesRead,bytesAvailable,bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1 * 1024 * 1024;
-        File selectedFile = new File(path);
-
-        String[] parts = path.split("/");
-        final String fileName = parts[parts.length-1];
-
-        if (!selectedFile.isFile()){
-            progressDialog.hide();
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    KToast.warningToast(MemberProfileEditActivity.this,
-                            "Source File Doesn't Exist :" + path,
-                            Gravity.BOTTOM,
-                            KToast.LENGTH_SHORT);
-                }
-            });
-            return 0;
-        }else{
-            try{
-                FileInputStream fileInputStream = new FileInputStream(selectedFile);
-                URL url = new URL(PHOTO_URL);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);//Allow Inputs
-                connection.setDoOutput(true);//Allow Outputs
-                connection.setUseCaches(false);//Don't use a cached Copy
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setRequestProperty("ENCTYPE", "multipart/form-data");
-                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-                connection.setRequestProperty("uploaded_file",path);
-
-                //creating new dataoutputstream
-                dataOutputStream = new DataOutputStream(connection.getOutputStream());
-
-                //writing bytes to data outputstream
-                dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
-                        + path + "\"" + lineEnd);
-
-                dataOutputStream.writeBytes(lineEnd);
-
-                //returns no. of bytes present in fileInputStream
-                bytesAvailable = fileInputStream.available();
-                //selecting the buffer size as minimum of available bytes or 1 MB
-                bufferSize = Math.min(bytesAvailable,maxBufferSize);
-                //setting the buffer as byte array of size of bufferSize
-                buffer = new byte[bufferSize];
-
-                //reads bytes from FileInputStream(from 0th index of buffer to buffersize)
-                bytesRead = fileInputStream.read(buffer,0,bufferSize);
-
-                //loop repeats till bytesRead = -1, i.e., no bytes are left to read
-                while (bytesRead > 0){
-                    //write the bytes read from inputstream
-                    dataOutputStream.write(buffer,0,bufferSize);
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable,maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer,0,bufferSize);
-                }
-
-                dataOutputStream.writeBytes(lineEnd);
-                dataOutputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                serverResponseCode = connection.getResponseCode();
-                String serverResponseMessage = connection.getResponseMessage();
-
-                Log.i("TAG", "Server Response is: " + serverResponseMessage + ": " + serverResponseCode);
-
-                //response code of 200 indicates the server status OK
-                if(serverResponseCode == 200){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ivPhoto.setVisibility(View.GONE);
-                            ivPhotoVerified.setVisibility(View.VISIBLE);
-                            KToast.successToast(MemberProfileEditActivity.this,
-                                    "Photo Uploaded : " + fileName,
-                                    Gravity.BOTTOM,
-                                    KToast.LENGTH_SHORT);
-                        }
-                    });
-                }
-                //closing the input and output streams
-                fileInputStream.close();
-                dataOutputStream.flush();
-                dataOutputStream.close();
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        KToast.errorToast(MemberProfileEditActivity.this,
-                                "File not Found" + fileName,
-                                Gravity.BOTTOM,
-                                KToast.LENGTH_SHORT);
-                    }
-                });
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                KToast.errorToast(MemberProfileEditActivity.this,
-                        "URL Error" + fileName,
-                        Gravity.BOTTOM,
-                        KToast.LENGTH_SHORT);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                KToast.errorToast(MemberProfileEditActivity.this,
-                        "Cannot Read/Write File" + fileName,
-                        Gravity.BOTTOM,
-                        KToast.LENGTH_SHORT);
-            }
-            progressDialog.dismiss();
-            return serverResponseCode;
-        }
-    }
-
-    private void uploadAudio() {
-
-        progressDialog = new Dialog(MemberProfileEditActivity.this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setContentView(R.layout.custom_dialog_progress);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //creating new thread to handle Http Operations
-                uploadAudio(path);
-            }
-        }).start();
-    }
-
-    private int uploadAudio(final String path) {
-
-        int serverResponseCode = 0;
-
-        HttpURLConnection connection;
-        DataOutputStream dataOutputStream;
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "*****";
-
-        int bytesRead,bytesAvailable,bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1 * 1024 * 1024;
-        File selectedFile = new File(path);
-
-        String[] parts = path.split("/");
-        final String fileName = parts[parts.length-1];
-
-        if (!selectedFile.isFile()){
-            progressDialog.hide();
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    KToast.warningToast(MemberProfileEditActivity.this,
-                            "Source File Doesn't Exist :" + path,
-                            Gravity.BOTTOM,
-                            KToast.LENGTH_SHORT);
-                }
-            });
-            return 0;
-        }else{
-            try{
-                FileInputStream fileInputStream = new FileInputStream(selectedFile);
-                URL url = new URL(AUDIO_URL);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);//Allow Inputs
-                connection.setDoOutput(true);//Allow Outputs
-                connection.setUseCaches(false);//Don't use a cached Copy
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setRequestProperty("ENCTYPE", "multipart/form-data");
-                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-                connection.setRequestProperty("uploaded_file",path);
-
-                //creating new dataoutputstream
-                dataOutputStream = new DataOutputStream(connection.getOutputStream());
-
-                //writing bytes to data outputstream
-                dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
-                        + path + "\"" + lineEnd);
-
-                dataOutputStream.writeBytes(lineEnd);
-
-                //returns no. of bytes present in fileInputStream
-                bytesAvailable = fileInputStream.available();
-                //selecting the buffer size as minimum of available bytes or 1 MB
-                bufferSize = Math.min(bytesAvailable,maxBufferSize);
-                //setting the buffer as byte array of size of bufferSize
-                buffer = new byte[bufferSize];
-
-                //reads bytes from FileInputStream(from 0th index of buffer to buffersize)
-                bytesRead = fileInputStream.read(buffer,0,bufferSize);
-
-                //loop repeats till bytesRead = -1, i.e., no bytes are left to read
-                while (bytesRead > 0){
-                    //write the bytes read from inputstream
-                    dataOutputStream.write(buffer,0,bufferSize);
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable,maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer,0,bufferSize);
-                }
-
-                dataOutputStream.writeBytes(lineEnd);
-                dataOutputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                serverResponseCode = connection.getResponseCode();
-                String serverResponseMessage = connection.getResponseMessage();
-
-                Log.i("TAG", "Server Response is: " + serverResponseMessage + ": " + serverResponseCode);
-
-                //response code of 200 indicates the server status OK
-                if(serverResponseCode == 200){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            ivAudio.setVisibility(View.GONE);
-                            ivAudioVerified.setVisibility(View.VISIBLE);
-                            KToast.successToast(MemberProfileEditActivity.this,
-                                    "Audio Uploaded : " + fileName,
-                                    Gravity.BOTTOM,
-                                    KToast.LENGTH_SHORT);
-                        }
-                    });
-                }
-                //closing the input and output streams
-                fileInputStream.close();
-                dataOutputStream.flush();
-                dataOutputStream.close();
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        KToast.errorToast(MemberProfileEditActivity.this,
-                                "File not Found" + fileName,
-                                Gravity.BOTTOM,
-                                KToast.LENGTH_SHORT);
-                    }
-                });
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                KToast.errorToast(MemberProfileEditActivity.this,
-                        "URL Error" + fileName,
-                        Gravity.BOTTOM,
-                        KToast.LENGTH_SHORT);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                KToast.errorToast(MemberProfileEditActivity.this,
-                        "Cannot Read/Write File" + fileName,
-                        Gravity.BOTTOM,
-                        KToast.LENGTH_SHORT);
-            }
-            progressDialog.dismiss();
-            return serverResponseCode;
         }
     }
 
@@ -1651,21 +1091,6 @@ public class MemberProfileEditActivity extends AppCompatActivity implements Inte
                 params.put("mid", mid);
                 params.put("date", date);
                 params.put("bio", cv);
-                if (photofilename != null){
-                    params.put("photo", photofilename);
-                }else {
-                    params.put("photo", "");
-                }
-                if (videofilename != null){
-                    params.put("video", videofilename);
-                }else {
-                    params.put("video", "");
-                }
-                if (audiofilename != null){
-                    params.put("audio", audiofilename);
-                }else {
-                    params.put("audio", "");
-                }
                 params.put("mobileno", mobile);
                 return params;
             }

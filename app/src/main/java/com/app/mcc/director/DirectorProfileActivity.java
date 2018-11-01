@@ -189,6 +189,11 @@ public class DirectorProfileActivity extends AppCompatActivity implements Intern
                                 etPhone.setText(Constants.pref.getString("mobileno", ""));
                                 etLanguage.setText(language);
                                 etCategory.setText(category);
+
+                                Constants.editor.putString("profileimage", profile);
+                                Constants.editor.apply();
+                                Constants.editor.commit();
+
                                 String profileImage = Constants.DIR_PROFILE_URL + profile;
                                 if (!profile.isEmpty()){
                                     Glide.with(DirectorProfileActivity.this).load(profileImage).thumbnail(0.1f).into(ivProfile);

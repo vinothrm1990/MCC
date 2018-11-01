@@ -2,6 +2,7 @@ package com.app.mcc.member;
 
 import android.Manifest;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,20 +11,26 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -70,6 +77,7 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
     RequestQueue queue;
     Dialog progressDialog;
     String photo, audio, video;
+    AlertDialog alertDialog;
     MediaPlayer mediaPlayer;
     String PROFILE_URL = Constants.MEMBER_URL + Constants.GET_PROFILE;
 
@@ -133,24 +141,10 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
             public void onClick(View view) {
 
                 if (!audio.isEmpty()){
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    audioPlayer();
 
-                    boolean isPlaying = false;
-                    String audiofile = Constants.MEM_AUDIO_URL + audio;
-                    if (!isPlaying){
-
-                        isPlaying = true;
-                        mediaPlayer = new MediaPlayer();
-                        try{
-                            mediaPlayer.setDataSource(audiofile);
-                            mediaPlayer.prepare();
-                            mediaPlayer.start();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }else {
-                        isPlaying = false;
-                        stopPlaying();
-                    }
                 }else {
                     KToast.infoToast(MemberProfileActivity.this,
                             "No Audio Available",
@@ -187,11 +181,83 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
 
     }
 
-    private void stopPlaying() {
+    private void audioPlayer() {
 
-        mediaPlayer.release();
-        mediaPlayer = null;
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MemberProfileActivity.this);
+        LayoutInflater inflater = MemberProfileActivity.this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.player_dialog, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
+
+        ImageView ivClose = dialogView.findViewById(R.id.mem_music_close);
+        ImageView ivPlay = dialogView.findViewById(R.id.mem_music_play);
+        ImageView ivStop = dialogView.findViewById(R.id.mem_music_stop);
+        TextView tvSong = dialogView.findViewById(R.id.mem_music_name);
+        final ProgressBar bar = dialogView.findViewById(R.id.mem_progress);
+
+        alertDialog = dialogBuilder.create();
+
+        String aFile = Constants.MEM_AUDIO_URL + audio;
+        String audioFile = aFile.substring(aFile.lastIndexOf("/")+1);
+        tvSong.setText(audioFile);
+        tvSong.setSelected(true);
+
+        ivPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+
+                    String audioFile = Constants.MEM_AUDIO_URL + audio;
+                    mediaPlayer.setDataSource(audioFile);
+                    mediaPlayer.prepare();
+
+                    KToast.infoToast(MemberProfileActivity.this,
+                            "Playing",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+
+                } catch (IllegalArgumentException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (SecurityException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                mediaPlayer.start();
+            }
+        });
+
+        ivStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                mediaPlayer.stop();
+
+                KToast.infoToast(MemberProfileActivity.this,
+                        "Stoped",
+                        Gravity.BOTTOM,
+                        KToast.LENGTH_SHORT);
+            }
+        });
+
+        ivClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.show();
     }
+
 
     private void getProfile() {
 
@@ -234,6 +300,10 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
                                 tvPhone.setText(mobile);
                                 tvCategory.setText(category);
                                 etFb.setText(fid);
+
+                                Constants.editor.putString("profile", profile);
+                                Constants.editor.apply();
+                                Constants.editor.commit();
 
                                 String profileImage = Constants.MEM_PROFILE_URL + profile;
                                 if (!profile.isEmpty()){
@@ -304,6 +374,7 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
     protected void onDestroy() {
         super.onDestroy();
         availabilityChecker.removeInternetConnectivityChangeListener(this);
+
     }
 
     @Override

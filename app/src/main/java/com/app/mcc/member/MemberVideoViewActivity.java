@@ -2,12 +2,15 @@ package com.app.mcc.member;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -23,38 +26,52 @@ public class MemberVideoViewActivity extends AppCompatActivity implements Intern
 
     InternetAvailabilityChecker availabilityChecker;
     VideoView videoView;
+    RelativeLayout.LayoutParams layoutParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         setContentView(R.layout.activity_member_video_view);
 
         availabilityChecker = InternetAvailabilityChecker.getInstance();
         availabilityChecker.addInternetConnectivityListener(this);
 
-        TextView title = new TextView(getApplicationContext());
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
-        title.setLayoutParams(layoutParams);
-        title.setText("MY VIDEO");
-        title.setTextSize(20);
-        title.setTextColor(Color.parseColor("#FFFFFF"));
-        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sans_bold.ttf");
-        title.setTypeface(font);
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setCustomView(title);
-
 
         videoView = findViewById(R.id.mem_video_view);
+        MediaController vidControl = new MediaController(this);
+        vidControl.setAnchorView(videoView);
+        videoView.setMediaController(vidControl);
 
         Intent intent = getIntent();
-        String video = Constants.MEM_VIDEO_URL + intent.getStringExtra("video");
+        String video = Constants.MEM_VIDEO_URL + intent.getStringExtra("url");
+        Uri uri = Uri.parse(video);
+        videoView.setVideoURI(uri);
+        videoView.requestFocus();
+        videoView.start();
 
-        MediaController mediaController = new MediaController(this);
-        mediaController.setAnchorView(videoView);
-        videoView.setMediaController(mediaController);
-        videoView.setVideoURI(Uri.parse(video));
+    }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+
+            layoutParams = (RelativeLayout.LayoutParams)videoView.getLayoutParams();
+            RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(layoutParams);
+            params.setMargins(0, 0, 0, 0);
+            params.height=ViewGroup.LayoutParams.MATCH_PARENT;
+            params.width=ViewGroup.LayoutParams.MATCH_PARENT;
+            params.addRule(RelativeLayout.CENTER_IN_PARENT);
+            videoView.setLayoutParams(params);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
     @Override

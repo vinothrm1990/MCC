@@ -43,8 +43,10 @@ import com.app.mcc.director.DirectorWishlistActivity;
 import com.app.mcc.guest.GuestAboutFragment;
 import com.app.mcc.guest.GuestHomeFragment;
 import com.app.mcc.helper.Constants;
+import com.app.mcc.member.MemberFeedbackActivity;
 import com.app.mcc.member.MemberHomeFragment;
 import com.app.mcc.member.MemberProfileActivity;
+import com.app.mcc.member.MemberUploadActivity;
 import com.bumptech.glide.Glide;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.onurkaganaldemir.ktoastlib.KToast;
@@ -68,7 +70,8 @@ public class HomeActivity extends AppCompatActivity
     Dialog progressDialog;
     String oldPass, newPass, confirmPass;
     RequestQueue queue;
-    String CHANGE_URL = Constants.DIRECTOR_URL + Constants.CHANGE_PASSWORD;
+    String CHANGE_DIR_URL = Constants.DIRECTOR_URL + Constants.CHANGE_PASSWORD;
+    String CHANGE_MEM_URL = Constants.MEMBER_URL + Constants.CHANGE_PASSWORD;
     InternetAvailabilityChecker availabilityChecker;
     String PROFILE_URL = Constants.DIRECTOR_URL + Constants.GET_PROFILE;
 
@@ -123,7 +126,6 @@ public class HomeActivity extends AppCompatActivity
         availabilityChecker = InternetAvailabilityChecker.getInstance();
         availabilityChecker.addInternetConnectivityListener(this);
 
-        getProfile();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -139,25 +141,26 @@ public class HomeActivity extends AppCompatActivity
             String image = Constants.DIR_PROFILE_URL + Constants.pref.getString("profileimage", "");
             String name = Constants.pref.getString("name", "");
             if (!image.isEmpty() || !name.isEmpty()){
-                username.setText(Constants.pref.getString("name", ""));
+                username.setText(name);
                 Glide.with(HomeActivity.this).load(image).thumbnail(0.1f).into(userimage);
             }else {
                 username.setText("Director's Name");
                 Glide.with(HomeActivity.this).load(R.drawable.profile_logo).thumbnail(0.1f).into(userimage);
             }
-        }else if (type.equalsIgnoreCase("member")){
+        }
+        if (type.equalsIgnoreCase("member")){
             TextView username= headerLayout.findViewById(R.id.member_tv);
             CircularImageView userimage = headerLayout.findViewById(R.id.member_iv);
-            String image = Constants.DIR_PROFILE_URL + Constants.pref.getString("profileimage", "");
-            String name = Constants.pref.getString("name", "");
+            String image = Constants.MEM_PROFILE_URL + Constants.pref.getString("profile", "");
+            String name = Constants.pref.getString("fname", "") + "" +Constants.pref.getString("lname", "");
             if (!image.isEmpty() || !name.isEmpty()){
-                username.setText(Constants.pref.getString("name", ""));
+                username.setText(name);
                 Glide.with(HomeActivity.this).load(image).thumbnail(0.1f).into(userimage);
             }else {
                 username.setText("Member's Name");
                 Glide.with(HomeActivity.this).load(R.drawable.profile_logo).thumbnail(0.1f).into(userimage);
             }
-        }else if (type.equalsIgnoreCase("guest")){
+        } if (type.equalsIgnoreCase("guest")){
             TextView username = headerLayout.findViewById(R.id.guest_tv);
             username.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -169,92 +172,6 @@ public class HomeActivity extends AppCompatActivity
             });
         }
         navigationView.setNavigationItemSelectedListener(this);
-    }
-
-    private void getProfile() {
-
-        progressDialog = new Dialog(HomeActivity.this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setContentView(R.layout.custom_dialog_progress);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        StringRequest request = new StringRequest(Request.Method.POST, PROFILE_URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(response);
-
-                            if (jsonObject.getString("status")
-                                    .equalsIgnoreCase("success")){
-                                String data = jsonObject.getString("message");
-                                JSONArray array = new JSONArray(data);
-                                JSONObject object = array.getJSONObject(0);
-
-                                String name = object.getString("name");
-                                String profile = object.getString("profileimage");
-
-                                Constants.editor.putString("name", name);
-                                Constants.editor.putString("profileimage", profile);
-                                Constants.editor.apply();
-                                Constants.editor.commit();
-
-                            }else if (jsonObject.getString("status")
-                                    .equalsIgnoreCase("failed")){
-                                KToast.warningToast(HomeActivity.this,
-                                        jsonObject.getString("message"),
-                                        Gravity.BOTTOM,
-                                        KToast.LENGTH_SHORT);
-
-                            }else if (jsonObject.getString("status")
-                                    .equalsIgnoreCase("empty")){
-                                KToast.warningToast(HomeActivity.this,
-                                        jsonObject.getString("message"),
-                                        Gravity.BOTTOM,
-                                        KToast.LENGTH_SHORT);
-                            }else {
-                                KToast.errorToast(HomeActivity.this,
-                                        "Something Went Wrong!",
-                                        Gravity.BOTTOM,
-                                        KToast.LENGTH_SHORT);
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            KToast.errorToast(HomeActivity.this,
-                                    e.getMessage(),
-                                    Gravity.BOTTOM,
-                                    KToast.LENGTH_SHORT);
-                        }
-
-                        progressDialog.hide();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                        KToast.errorToast(HomeActivity.this,
-                                error.getMessage(),
-                                Gravity.BOTTOM,
-                                KToast.LENGTH_SHORT);
-                    }
-                })
-        {
-
-            @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("mobileno", Constants.pref.getString("mobileno", ""));
-                return params;
-            }
-        };
-        queue.add(request);
     }
 
     @Override
@@ -341,7 +258,7 @@ public class HomeActivity extends AppCompatActivity
 
             }else if (id == R.id.nav_change) {
 
-                changePassword();
+                changeDirectorPassword();
 
             }else if (id == R.id.nav_member) {
 
@@ -374,9 +291,17 @@ public class HomeActivity extends AppCompatActivity
 
             }else if (id == R.id.nav_upload) {
 
+                startActivity(new Intent(HomeActivity.this, MemberUploadActivity.class));
+                Bungee.zoom(HomeActivity.this);
+
             }else if (id == R.id.nav_change) {
 
+                changeMemberPassword();
+
             }else if (id == R.id.nav_feedback) {
+
+                startActivity(new Intent(HomeActivity.this, MemberFeedbackActivity.class));
+                Bungee.zoom(HomeActivity.this);
 
             }else if (id == R.id.nav_about) {
 
@@ -391,7 +316,7 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    private void changePassword() {
+    private void changeMemberPassword() {
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -429,7 +354,7 @@ public class HomeActivity extends AppCompatActivity
                     validation = true;
                 }
                 if (validation == false){
-                    //updatePassword();
+                    updateMemberPassword();
                 }
             }
         });
@@ -443,29 +368,7 @@ public class HomeActivity extends AppCompatActivity
         changeDialog.show();
     }
 
-    private boolean isValidCPass(String confirmPass, String newPass) {
-        if (confirmPass != null && confirmPass.matches(newPass) && confirmPass.length() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isValidNPass(String newPass) {
-        if (newPass != null && newPass.length() > 3) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isValidOPass(String oldPass) {
-        String old = Constants.pref.getString("password", "");
-        if (oldPass != null && oldPass.matches(old)) {
-            return true;
-        }
-        return false;
-    }
-
-    private void updatePassword() {
+    private void updateMemberPassword() {
 
         progressDialog = new Dialog(HomeActivity.this);
         progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -474,7 +377,7 @@ public class HomeActivity extends AppCompatActivity
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        StringRequest request = new StringRequest(Request.Method.POST, CHANGE_URL,
+        StringRequest request = new StringRequest(Request.Method.POST, CHANGE_MEM_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -486,8 +389,14 @@ public class HomeActivity extends AppCompatActivity
                             if (jsonObject.getString("status").equalsIgnoreCase("success")){
 
                                 changeDialog.dismiss();
+                                Constants.editor.remove("password");
+                                Constants.editor.apply();
+                                Constants.editor.commit();
+                                Constants.editor.putString("password", confirmPass);
+                                Constants.editor.apply();
+                                Constants.editor.commit();
                                 KToast.successToast(HomeActivity.this,
-                                        "Your Password Changed Successfully",
+                                        jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
 
@@ -527,9 +436,158 @@ public class HomeActivity extends AppCompatActivity
             {
 
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("old", oldPass);
-                params.put("new", newPass);
-                params.put("confirm", confirmPass);
+                params.put("new_pass", confirmPass);
+                params.put("mobileno", Constants.pref.getString("phone",""));
+                return params;
+            }
+        };
+        queue.add(request);
+    }
+
+    private void changeDirectorPassword() {
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.change_password_dialog, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
+
+        Button btnUpdate = dialogView.findViewById(R.id.btn_update_change);
+        ImageView ivClose = dialogView.findViewById(R.id.dir_change_close);
+        final AppCompatEditText etOld = dialogView.findViewById(R.id.dir_change_old);
+        final AppCompatEditText etNew = dialogView.findViewById(R.id.dir_change_new);
+        final AppCompatEditText etConfirm = dialogView.findViewById(R.id.dir_change_confirm);
+
+        changeDialog = dialogBuilder.create();
+
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                boolean validation = false;
+
+                oldPass = etOld.getText().toString().trim();
+                if (!isValidOPass(oldPass)){
+                    etOld.setError("Invalid Password or Password didn't Match");
+                    validation = true;
+                }
+                newPass = etNew.getText().toString().trim();
+                if (!isValidNPass(newPass)){
+                    etNew.setError("Invalid Password");
+                    validation = true;
+                }
+                confirmPass = etConfirm.getText().toString().trim();
+                if (!isValidCPass(confirmPass, newPass)){
+                    etConfirm.setError("Password didn't Match");
+                    validation = true;
+                }
+                if (validation == false){
+                    updateDirectorPassword();
+                }
+            }
+        });
+        ivClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                changeDialog.dismiss();
+            }
+        });
+        changeDialog.show();
+    }
+
+    private boolean isValidCPass(String confirmPass, String newPass) {
+        if (confirmPass != null && confirmPass.matches(newPass) && confirmPass.length() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isValidNPass(String newPass) {
+        if (newPass != null && newPass.length() > 3) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isValidOPass(String oldPass) {
+        String old = Constants.pref.getString("password", "");
+        if (oldPass != null && oldPass.matches(old)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void updateDirectorPassword() {
+
+        progressDialog = new Dialog(HomeActivity.this);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.setContentView(R.layout.custom_dialog_progress);
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        StringRequest request = new StringRequest(Request.Method.POST, CHANGE_DIR_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+
+                            if (jsonObject.getString("status").equalsIgnoreCase("success")){
+
+                                changeDialog.dismiss();
+                                Constants.editor.remove("password");
+                                Constants.editor.apply();
+                                Constants.editor.commit();
+                                Constants.editor.putString("password", confirmPass);
+                                Constants.editor.apply();
+                                Constants.editor.commit();
+                                KToast.successToast(HomeActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
+                            }else {
+                                KToast.errorToast(HomeActivity.this,
+                                        jsonObject.getString("message"),
+                                        Gravity.BOTTOM,
+                                        KToast.LENGTH_SHORT);
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            KToast.errorToast(HomeActivity.this,
+                                    e.getMessage(),
+                                    Gravity.BOTTOM,
+                                    KToast.LENGTH_LONG);
+                        }
+
+                        progressDialog.hide();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        KToast.errorToast(HomeActivity.this,
+                                error.getMessage(),
+                                Gravity.BOTTOM,
+                                KToast.LENGTH_LONG);
+                    }
+                })
+        {
+
+            @Override
+            protected Map<String, String> getParams()
+            {
+
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("new_pass", confirmPass);
+                params.put("mobileno", Constants.pref.getString("mobileno",""));
                 return params;
             }
         };
