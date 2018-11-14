@@ -72,7 +72,7 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
     ImageView ivEdit, ivPhoto, ivAudio, ivVideo;
     CircularImageView ivProfile;
     AppCompatEditText etName, etEmail, etFb;
-    TextView tvPhone, tvCategory;
+    TextView tvPhone, tvCategory , tvCount;
     InternetAvailabilityChecker availabilityChecker;
     RequestQueue queue;
     Dialog progressDialog;
@@ -114,6 +114,7 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
         ivPhoto = findViewById(R.id.mem_profile_view_photo);
         ivAudio = findViewById(R.id.mem_profile_view_audio);
         ivVideo = findViewById(R.id.mem_profile_view_video);
+        tvCount = findViewById(R.id.mem_profile_count);
 
         queue = Volley.newRequestQueue(this);
 
@@ -281,6 +282,7 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
                                     .equalsIgnoreCase("success")){
                                 progressDialog.hide();
                                 String data = jsonObject.getString("message");
+                                String count = jsonObject.getString("count");
                                 JSONArray array = new JSONArray(data);
                                 JSONObject object = array.getJSONObject(0);
 
@@ -304,6 +306,12 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
                                 Constants.editor.putString("profile", profile);
                                 Constants.editor.apply();
                                 Constants.editor.commit();
+
+                                if (jsonObject.getString("count").equalsIgnoreCase("null")){
+                                    tvCount.setText("0");
+                                }else {
+                                    tvCount.setText(count);
+                                }
 
                                 String profileImage = Constants.MEM_PROFILE_URL + profile;
                                 if (!profile.isEmpty()){
@@ -364,6 +372,7 @@ public class MemberProfileActivity extends AppCompatActivity implements Internet
             {
                 Map<String, String>  params = new HashMap<String, String>();
                 params.put("mobileno", Constants.pref.getString("phone", ""));
+                params.put("memid", Constants.pref.getString("id", ""));
                 return params;
             }
         };

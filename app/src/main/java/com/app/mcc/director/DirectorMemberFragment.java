@@ -108,6 +108,9 @@ public class DirectorMemberFragment extends Fragment {
                                     String dob = object.getString("dob");
                                     String gender = object.getString("gender");
                                     String qualify = object.getString("qualify");
+                                    String photo = object.getString("upload_pic");
+                                    String audio = object.getString("upload_audio");
+                                    String video = object.getString("video");
 
                                     map.put("id", id);
                                     map.put("f_name", fname);
@@ -123,6 +126,9 @@ public class DirectorMemberFragment extends Fragment {
                                     map.put("dob", dob);
                                     map.put("gender", gender);
                                     map.put("qualify", qualify);
+                                    map.put("upload_pic", photo);
+                                    map.put("upload_audio", audio);
+                                    map.put("video", video);
 
                                     memberList.add(map);
 

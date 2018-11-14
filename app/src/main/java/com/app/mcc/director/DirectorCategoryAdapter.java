@@ -2,6 +2,7 @@ package com.app.mcc.director;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -51,7 +52,9 @@ public class DirectorCategoryAdapter extends RecyclerView.Adapter<DirectorCatego
             public void onClick(View view) {
 
                 Intent intent = new Intent(mContext, DirectorCategoryDetailsActivity.class);
-                intent.putExtra("data", map);
+                Bundle bundle = new Bundle();
+                bundle.putString("title", map.get("title"));
+                intent.putExtras(bundle);
                 mContext.startActivity(intent);
             }
         });

@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-android:layout_centerInParent="true"
-    tools:context=".guest.GuestAboutFragment">
+    android:layout_centerInParent="true">
     <LinearLayout
         android:orientation="vertical"
         android:weightSum="2"

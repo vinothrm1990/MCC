@@ -1,16 +1,22 @@
 package com.app.mcc.director;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,6 +29,9 @@ import com.android.volley.toolbox.Volley;
 import com.app.mcc.R;
 import com.app.mcc.activity.HomeActivity;
 import com.app.mcc.helper.Constants;
+import com.app.mcc.member.MemberImageViewActivity;
+import com.app.mcc.member.MemberProfileActivity;
+import com.app.mcc.member.MemberVideoViewActivity;
 import com.bumptech.glide.Glide;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.onurkaganaldemir.ktoastlib.KToast;
@@ -33,6 +42,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +60,9 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
     String ADD_URL = Constants.DIRECTOR_URL + Constants.ADD_REMOVE_WISHLIST;
     String REMOVE_URL = Constants.DIRECTOR_URL + Constants.ADD_REMOVE_WISHLIST;
     String FLAG_URL = Constants.DIRECTOR_URL + Constants.GET_FLAG;
+    String photo, audio, video;
+    MediaPlayer mediaPlayer;
+    AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +105,10 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
         memid = map.get("id");
         dirphone= Constants.pref.getString("mobileno", "");
         dirid= Constants.pref.getString("id", "");
+        photo = map.get("upload_pic");
+        audio = map.get("upload_audio");
+        video = map.get("video");
+
 
         ivWishlistFalse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,6 +136,16 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
             @Override
             public void onClick(View view) {
 
+                if (!video.isEmpty()){
+                    Intent intent = new Intent(DirectorHomeActivity.this, MemberVideoViewActivity.class);
+                    intent.putExtra("url", video);
+                    startActivity(intent);
+                }else {
+                    KToast.infoToast(DirectorHomeActivity.this,
+                            "No Video Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
 
             }
         });
@@ -127,6 +154,17 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
             @Override
             public void onClick(View view) {
 
+                if (!audio.isEmpty()){
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    audioPlayer();
+
+                }else {
+                    KToast.infoToast(DirectorHomeActivity.this,
+                            "No Audio Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
 
             }
         });
@@ -135,11 +173,99 @@ public class DirectorHomeActivity extends AppCompatActivity implements InternetC
             @Override
             public void onClick(View view) {
 
-                
+                if (!photo.isEmpty()){
+                    Intent intent = new Intent(DirectorHomeActivity.this, MemberImageViewActivity.class);
+                    intent.putExtra("url", photo);
+                    startActivity(intent);
+                }else{
+                    KToast.infoToast(DirectorHomeActivity.this,
+                            "No Image Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
             }
         });
 
         getFlag();
+    }
+
+
+
+    private void audioPlayer() {
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DirectorHomeActivity.this);
+        LayoutInflater inflater = DirectorHomeActivity.this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.player_dialog, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
+
+        ImageView ivClose = dialogView.findViewById(R.id.mem_music_close);
+        ImageView ivPlay = dialogView.findViewById(R.id.mem_music_play);
+        ImageView ivStop = dialogView.findViewById(R.id.mem_music_stop);
+        TextView tvSong = dialogView.findViewById(R.id.mem_music_name);
+        final ProgressBar bar = dialogView.findViewById(R.id.mem_progress);
+
+        alertDialog = dialogBuilder.create();
+
+        String aFile = Constants.MEM_AUDIO_URL + audio;
+        String audioFile = aFile.substring(aFile.lastIndexOf("/")+1);
+        tvSong.setText(audioFile);
+        tvSong.setSelected(true);
+
+        ivPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+
+                    String audioFile = Constants.MEM_AUDIO_URL + audio;
+                    mediaPlayer.setDataSource(audioFile);
+                    mediaPlayer.prepare();
+
+                    KToast.infoToast(DirectorHomeActivity.this,
+                            "Playing",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+
+                } catch (IllegalArgumentException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (SecurityException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                mediaPlayer.start();
+            }
+        });
+
+        ivStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                mediaPlayer.stop();
+
+                KToast.infoToast(DirectorHomeActivity.this,
+                        "Stoped",
+                        Gravity.BOTTOM,
+                        KToast.LENGTH_SHORT);
+            }
+        });
+
+        ivClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.show();
     }
 
     private void getFlag() {

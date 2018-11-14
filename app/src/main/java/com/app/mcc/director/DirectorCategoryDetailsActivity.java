@@ -43,7 +43,6 @@ public class DirectorCategoryDetailsActivity extends AppCompatActivity implement
     DirectorCategoryDetailsAdapter categoryAdapter;
     RecyclerView.LayoutManager layoutManager;
     RequestQueue queue;
-    HashMap<String, String> map;
     Dialog progressDialog;
     String mapData;
     InternetAvailabilityChecker availabilityChecker;
@@ -73,15 +72,17 @@ public class DirectorCategoryDetailsActivity extends AppCompatActivity implement
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setCustomView(title);
 
-        map = (HashMap<String, String>) getIntent().getExtras().get("data");
 
-        if (!map.isEmpty()){
-            mapData = map.get("title");
-            Constants.editor.putString("mapData", map.get("title"));
+        Bundle bundle = getIntent().getExtras();
+
+        if (bundle == null){
+            mapData = Constants.pref.getString("data", "");
+        }else if (bundle != null){
+            mapData = bundle.getString("title");
+            Constants.editor.putString("data", mapData);
             Constants.editor.apply();
             Constants.editor.commit();
-        }else {
-           mapData = Constants.pref.getString("mapdata", "");
+
         }
 
         queue = Volley.newRequestQueue(DirectorCategoryDetailsActivity.this);
@@ -94,6 +95,7 @@ public class DirectorCategoryDetailsActivity extends AppCompatActivity implement
         jsonData();
 
     }
+
 
     private void jsonData() {
 
@@ -137,6 +139,9 @@ public class DirectorCategoryDetailsActivity extends AppCompatActivity implement
                                     String dob = object.getString("dob");
                                     String gender = object.getString("gender");
                                     String qualify = object.getString("qualify");
+                                    String photo = object.getString("upload_pic");
+                                    String audio = object.getString("upload_audio");
+                                    String video = object.getString("video");
 
                                     map.put("id", id);
                                     map.put("f_name", fname);
@@ -152,6 +157,9 @@ public class DirectorCategoryDetailsActivity extends AppCompatActivity implement
                                     map.put("dob", dob);
                                     map.put("gender", gender);
                                     map.put("qualify", qualify);
+                                    map.put("upload_pic", photo);
+                                    map.put("upload_audio", audio);
+                                    map.put("video", video);
 
                                     categoryList.add(map);
 

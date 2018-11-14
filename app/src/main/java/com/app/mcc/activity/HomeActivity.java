@@ -34,6 +34,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.app.mcc.R;
+import com.app.mcc.director.DirectorAboutActivity;
 import com.app.mcc.director.DirectorFeedbackActivity;
 import com.app.mcc.director.DirectorHomeFragment;
 import com.app.mcc.director.DirectorPostActivity;
@@ -43,6 +44,7 @@ import com.app.mcc.director.DirectorWishlistActivity;
 import com.app.mcc.guest.GuestAboutFragment;
 import com.app.mcc.guest.GuestHomeFragment;
 import com.app.mcc.helper.Constants;
+import com.app.mcc.member.MemberAboutActivity;
 import com.app.mcc.member.MemberFeedbackActivity;
 import com.app.mcc.member.MemberHomeFragment;
 import com.app.mcc.member.MemberProfileActivity;
@@ -272,6 +274,9 @@ public class HomeActivity extends AppCompatActivity
 
             }else if (id == R.id.nav_about) {
 
+                startActivity(new Intent(HomeActivity.this, DirectorAboutActivity.class));
+                Bungee.zoom(HomeActivity.this);
+
             } else if (id == R.id.nav_exit) {
                 logoutDialog();
             }
@@ -304,6 +309,9 @@ public class HomeActivity extends AppCompatActivity
                 Bungee.zoom(HomeActivity.this);
 
             }else if (id == R.id.nav_about) {
+
+                startActivity(new Intent(HomeActivity.this, MemberAboutActivity.class));
+                Bungee.zoom(HomeActivity.this);
 
             } else if (id == R.id.nav_exit) {
                 logoutDialog();

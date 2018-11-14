@@ -105,7 +105,12 @@
             android:name=".member.MemberFeedbackActivity"
             android:parentActivityName=".activity.HomeActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".member.MemberPostViewActivity"
+        <activity
+            android:name=".member.MemberPostViewActivity"
+            android:parentActivityName=".activity.HomeActivity" />
+        <activity android:name=".director.DirectorAboutActivity"
+            android:parentActivityName=".activity.HomeActivity"/>
+        <activity android:name=".member.MemberAboutActivity"
             android:parentActivityName=".activity.HomeActivity"/>
     </application>
 

@@ -102,12 +102,18 @@ public class DirectorHomeFragment extends Fragment {
                                     String lname = object.getString("l_name");
                                     String profile = object.getString("profile");
                                     String category = object.getString("category");
+                                    String photo = object.getString("upload_pic");
+                                    String audio = object.getString("upload_audio");
+                                    String video = object.getString("video");
 
                                     map.put("id", id);
                                     map.put("f_name", fname);
                                     map.put("l_name", lname);
                                     map.put("profile", profile);
                                     map.put("category", category);
+                                    map.put("upload_pic", photo);
+                                    map.put("upload_audio", audio);
+                                    map.put("video", video);
 
                                     homeList.add(map);
 

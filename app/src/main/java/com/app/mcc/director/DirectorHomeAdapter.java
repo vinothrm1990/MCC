@@ -2,6 +2,7 @@ package com.app.mcc.director;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -48,6 +49,9 @@ public class DirectorHomeAdapter extends RecyclerView.Adapter<DirectorHomeAdapte
             public void onClick(View view) {
 
                 Intent intent = new Intent(mContext, DirectorHomeActivity.class);
+               /* Bundle bundle = new Bundle();
+                bundle.putString("data", String.valueOf(map));
+                intent.putExtras(bundle);*/
                 intent.putExtra("data", map);
                 mContext.startActivity(intent);
 

@@ -17,12 +17,12 @@ public class Constants {
     public static String GUEST_URL = "http://mycinemachance.com/jsons/guest/";
     public static String IMAGE_URL = "http://mycinemachance.com/upload/";
     public static String RATE_URL = "http://mycinemachance.com/admin/upload/";
-    public static String DIR_PROFILE_URL = "http://mycinemachance.com/jsons/director/uploads/profile/";
-    public static String POST_IMAGE_URL = "http://mycinemachance.com/jsons/director/uploads/post/";
-    public static String MEM_PROFILE_URL = "http://mycinemachance.com/jsons/member/uploads/profile/";
-    public static String MEM_PHOTO_URL = "http://mycinemachance.com/jsons/member/uploads/photo/";
-    public static String MEM_AUDIO_URL = "http://mycinemachance.com/jsons/member/uploads/audio/";
-    public static String MEM_VIDEO_URL = "http://mycinemachance.com/jsons/member/uploads/video/";
+    public static String DIR_PROFILE_URL = "http://mycinemachance.com/upload/";
+    public static String POST_IMAGE_URL = "http://mycinemachance.com/upload/";
+    public static String MEM_PROFILE_URL = "http://mycinemachance.com/upload/";
+    public static String MEM_PHOTO_URL = "http://mycinemachance.com/upload/";
+    public static String MEM_AUDIO_URL = "http://mycinemachance.com/upload/";
+    public static String MEM_VIDEO_URL = "http://mycinemachance.com/upload/";
 
     //page URL
     public static String LOGIN = "login.php?";
@@ -54,4 +54,5 @@ public class Constants {
     public static String GET_INTERVIEW = "get_interview.php?";
     public static String GET_CATEGORY_MEMBER = "get_category_member.php?";
     public static String UPLOAD_MEDIA = "upload_media.php?";
+    public static String ADD_COUNT = "add_count.php?";
 }

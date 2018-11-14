@@ -771,9 +771,22 @@ public class MemberUploadActivity extends AppCompatActivity implements InternetC
             {
 
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("photo", photofilename);
-                params.put("audio", audiofilename);
-                params.put("video", videofilename);
+                if (photofilename != null){
+                    params.put("photo", photofilename);
+                }else{
+                    params.put("photo", "");
+                }
+                if (audiofilename != null){
+                    params.put("audio", audiofilename);
+                }else {
+                    params.put("audio", "");
+                }
+                if (videofilename != null){
+                    params.put("video", videofilename);
+                }else {
+                    params.put("video", "");
+                }
+
                 params.put("mobileno", Constants.pref.getString("phone",""));
                 return params;
             }

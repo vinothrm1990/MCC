@@ -1,16 +1,22 @@
 package com.app.mcc.director;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,6 +28,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.app.mcc.R;
 import com.app.mcc.helper.Constants;
+import com.app.mcc.member.MemberImageViewActivity;
+import com.app.mcc.member.MemberVideoViewActivity;
 import com.bumptech.glide.Glide;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.onurkaganaldemir.ktoastlib.KToast;
@@ -32,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,6 +58,10 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
     String ADD_URL = Constants.DIRECTOR_URL + Constants.ADD_REMOVE_WISHLIST;
     String REMOVE_URL = Constants.DIRECTOR_URL + Constants.ADD_REMOVE_WISHLIST;
     String FLAG_URL = Constants.DIRECTOR_URL + Constants.GET_FLAG;
+    String COUNT_URL = Constants.DIRECTOR_URL + Constants.ADD_COUNT;
+    String photo, audio, video;
+    MediaPlayer mediaPlayer;
+    AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,9 +122,14 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
         memid = map.get("id");
         dirphone= Constants.pref.getString("mobileno", "");
         dirid= Constants.pref.getString("id", "");
+        photo = map.get("upload_pic");
+        audio = map.get("upload_audio");
+        video = map.get("video");
 
         tvAddress.setSelected(true);
         tvCity.setSelected(true);
+
+        sendCount();
 
         ivWishlistFalse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,7 +157,16 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
 
-
+                if (!video.isEmpty()){
+                    Intent intent = new Intent(DirectorMemberDetailsActivity.this, MemberVideoViewActivity.class);
+                    intent.putExtra("url", video);
+                    startActivity(intent);
+                }else {
+                    KToast.infoToast(DirectorMemberDetailsActivity.this,
+                            "No Video Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
             }
         });
 
@@ -147,7 +174,17 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
 
+                if (!audio.isEmpty()){
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    audioPlayer();
 
+                }else {
+                    KToast.infoToast(DirectorMemberDetailsActivity.this,
+                            "No Audio Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
             }
         });
 
@@ -155,11 +192,161 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
 
-
+                if (!photo.isEmpty()){
+                    Intent intent = new Intent(DirectorMemberDetailsActivity.this, MemberImageViewActivity.class);
+                    intent.putExtra("url", photo);
+                    startActivity(intent);
+                }else{
+                    KToast.infoToast(DirectorMemberDetailsActivity.this,
+                            "No Image Available",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+                }
             }
         });
 
         getFlag();
+    }
+
+    private void audioPlayer() {
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(DirectorMemberDetailsActivity.this);
+        LayoutInflater inflater = DirectorMemberDetailsActivity.this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.player_dialog, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
+
+        ImageView ivClose = dialogView.findViewById(R.id.mem_music_close);
+        ImageView ivPlay = dialogView.findViewById(R.id.mem_music_play);
+        ImageView ivStop = dialogView.findViewById(R.id.mem_music_stop);
+        TextView tvSong = dialogView.findViewById(R.id.mem_music_name);
+        final ProgressBar bar = dialogView.findViewById(R.id.mem_progress);
+
+        alertDialog = dialogBuilder.create();
+
+        String aFile = Constants.MEM_AUDIO_URL + audio;
+        String audioFile = aFile.substring(aFile.lastIndexOf("/")+1);
+        tvSong.setText(audioFile);
+        tvSong.setSelected(true);
+
+        ivPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+
+                    String audioFile = Constants.MEM_AUDIO_URL + audio;
+                    mediaPlayer.setDataSource(audioFile);
+                    mediaPlayer.prepare();
+
+                    KToast.infoToast(DirectorMemberDetailsActivity.this,
+                            "Playing",
+                            Gravity.BOTTOM,
+                            KToast.LENGTH_SHORT);
+
+                } catch (IllegalArgumentException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (SecurityException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                mediaPlayer.start();
+            }
+        });
+
+        ivStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                mediaPlayer.stop();
+
+                KToast.infoToast(DirectorMemberDetailsActivity.this,
+                        "Stoped",
+                        Gravity.BOTTOM,
+                        KToast.LENGTH_SHORT);
+            }
+        });
+
+        ivClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.show();
+    }
+
+    private void sendCount() {
+
+        progressDialog = new Dialog(DirectorMemberDetailsActivity.this);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.setContentView(R.layout.custom_dialog_progress);
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        StringRequest request = new StringRequest(Request.Method.POST, COUNT_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+
+                            if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("success")){
+                                progressDialog.hide();
+
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("empty")){
+                                progressDialog.hide();
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            progressDialog.hide();
+                            KToast.errorToast(DirectorMemberDetailsActivity.this,
+                                    e.getMessage(),
+                                    Gravity.BOTTOM,
+                                    KToast.LENGTH_SHORT);
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progressDialog.hide();
+                        KToast.errorToast(DirectorMemberDetailsActivity.this,
+                                error.getMessage(),
+                                Gravity.BOTTOM,
+                                KToast.LENGTH_SHORT);
+                    }
+                })
+        {
+            @Override
+            protected Map<String, String> getParams()
+            {
+
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("memid", memid);
+                params.put("dirid", dirid);
+                return params;
+            }
+        };
+        queue.add(request);
     }
 
     private void getFlag() {
