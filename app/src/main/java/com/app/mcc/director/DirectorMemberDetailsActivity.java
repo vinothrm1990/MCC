@@ -287,13 +287,6 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
 
     private void sendCount() {
 
-        progressDialog = new Dialog(DirectorMemberDetailsActivity.this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setContentView(R.layout.custom_dialog_progress);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
         StringRequest request = new StringRequest(Request.Method.POST, COUNT_URL,
                 new Response.Listener<String>() {
                     @Override
@@ -305,18 +298,22 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("success")){
-                                progressDialog.hide();
+
 
 
                             }else if (jsonObject.getString("status")
-                                    .equalsIgnoreCase("empty")){
-                                progressDialog.hide();
+                                    .equalsIgnoreCase("Already")){
+
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("failed")){
+
 
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            progressDialog.hide();
+
                             KToast.errorToast(DirectorMemberDetailsActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
@@ -328,7 +325,7 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        progressDialog.hide();
+
                         KToast.errorToast(DirectorMemberDetailsActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
@@ -351,13 +348,6 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
 
     private void getFlag() {
 
-        progressDialog = new Dialog(DirectorMemberDetailsActivity.this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setContentView(R.layout.custom_dialog_progress);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
         StringRequest request = new StringRequest(Request.Method.POST, FLAG_URL,
                 new Response.Listener<String>() {
                     @Override
@@ -369,7 +359,6 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("success")){
-                                progressDialog.hide();
 
                                 String data = jsonObject.getString("message");
                                 JSONArray array = new JSONArray(data);
@@ -377,13 +366,14 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
 
                                 int flagstatus = Integer.parseInt(object.getString("flag"));
                                 if (flagstatus == 1){
+
                                     ivWishlistFalse.setVisibility(View.GONE);
                                     ivWishlistTrue.setVisibility(View.VISIBLE);
                                 }
 
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("empty")){
-                                progressDialog.hide();
+
                                 ivWishlistTrue.setVisibility(View.GONE);
                                 ivWishlistFalse.setVisibility(View.VISIBLE);
 
@@ -391,20 +381,19 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            progressDialog.hide();
+
                             KToast.errorToast(DirectorMemberDetailsActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        progressDialog.hide();
+
                         KToast.errorToast(DirectorMemberDetailsActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
@@ -597,6 +586,11 @@ public class DirectorMemberDetailsActivity extends AppCompatActivity implements 
     protected void onDestroy() {
         super.onDestroy();
         availabilityChecker.removeInternetConnectivityChangeListener(this);
+
+        if (progressDialog != null){
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
     }
 
     @Override

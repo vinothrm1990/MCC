@@ -2,6 +2,7 @@ package com.app.mcc.director;
 
 import android.app.ActionBar;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -318,6 +319,13 @@ public class DirectorWishlistDetailsActivity extends AppCompatActivity implement
             }
         };
         queue.add(request);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        startActivity(new Intent(this, DirectorWishlistActivity.class));
     }
 
     @Override

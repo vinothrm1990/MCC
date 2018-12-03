@@ -211,13 +211,6 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
     private void sendCount() {
 
-        progressDialog = new Dialog(DirectorCategoryFullDetailsActivity.this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setContentView(R.layout.custom_dialog_progress);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
         StringRequest request = new StringRequest(Request.Method.POST, COUNT_URL,
                 new Response.Listener<String>() {
                     @Override
@@ -229,17 +222,19 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("success")){
-                                progressDialog.hide();
+
 
                             }else if (jsonObject.getString("status")
-                                    .equalsIgnoreCase("empty")){
-                                progressDialog.hide();
+                                    .equalsIgnoreCase("Already")){
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("failed")){
 
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            progressDialog.hide();
+
                             KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
@@ -251,7 +246,7 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        progressDialog.hide();
+
                         KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
@@ -285,7 +280,6 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
         ImageView ivPlay = dialogView.findViewById(R.id.mem_music_play);
         ImageView ivStop = dialogView.findViewById(R.id.mem_music_stop);
         TextView tvSong = dialogView.findViewById(R.id.mem_music_name);
-        final ProgressBar bar = dialogView.findViewById(R.id.mem_progress);
 
         alertDialog = dialogBuilder.create();
 
@@ -352,13 +346,6 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
     private void getFlag() {
 
-        progressDialog = new Dialog(DirectorCategoryFullDetailsActivity.this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setContentView(R.layout.custom_dialog_progress);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
         StringRequest request = new StringRequest(Request.Method.POST, FLAG_URL,
                 new Response.Listener<String>() {
                     @Override
@@ -370,7 +357,6 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("success")){
-                                progressDialog.hide();
 
                                 String data = jsonObject.getString("message");
                                 JSONArray array = new JSONArray(data);
@@ -378,34 +364,38 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                                 int flagstatus = Integer.parseInt(object.getString("flag"));
                                 if (flagstatus == 1){
+
                                     ivWishlistFalse.setVisibility(View.GONE);
                                     ivWishlistTrue.setVisibility(View.VISIBLE);
                                 }
 
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("empty")){
-                                progressDialog.hide();
+
                                 ivWishlistTrue.setVisibility(View.GONE);
                                 ivWishlistFalse.setVisibility(View.VISIBLE);
+
+                            }else if (jsonObject.getString("status")
+                                    .equalsIgnoreCase("failed")){
+
 
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            progressDialog.hide();
+                            progressDialog.dismiss();
                             KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        progressDialog.hide();
+
                         KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
@@ -445,7 +435,7 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("removed")){
-
+                                progressDialog.dismiss();
                                 KToast.successToast(DirectorCategoryFullDetailsActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
@@ -453,6 +443,7 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("already")){
+                                progressDialog.dismiss();
                                 KToast.warningToast(DirectorCategoryFullDetailsActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
@@ -460,12 +451,14 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("removed failed")){
+                                progressDialog.dismiss();
                                 KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
 
                             }else {
+                                progressDialog.dismiss();
                                 KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                         "Something Went Wrong!",
                                         Gravity.BOTTOM,
@@ -475,13 +468,13 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            progressDialog.dismiss();
                             KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-                        progressDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
@@ -530,7 +523,7 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                             if (jsonObject.getString("status")
                                     .equalsIgnoreCase("added")){
-
+                                progressDialog.dismiss();
                                 KToast.successToast(DirectorCategoryFullDetailsActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
@@ -538,6 +531,7 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("already")){
+                                progressDialog.dismiss();
                                 KToast.warningToast(DirectorCategoryFullDetailsActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
@@ -545,12 +539,14 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                             }else if (jsonObject.getString("status")
                                     .equalsIgnoreCase("adding failed")){
+                                progressDialog.dismiss();
                                 KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                         jsonObject.getString("message"),
                                         Gravity.BOTTOM,
                                         KToast.LENGTH_SHORT);
 
                             }else {
+                                progressDialog.dismiss();
                                 KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                         "Something Went Wrong!",
                                         Gravity.BOTTOM,
@@ -559,19 +555,19 @@ public class DirectorCategoryFullDetailsActivity extends AppCompatActivity imple
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            progressDialog.hide();
                             KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                     e.getMessage(),
                                     Gravity.BOTTOM,
                                     KToast.LENGTH_SHORT);
                         }
 
-                        progressDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        progressDialog.hide();
                         KToast.errorToast(DirectorCategoryFullDetailsActivity.this,
                                 error.getMessage(),
                                 Gravity.BOTTOM,
