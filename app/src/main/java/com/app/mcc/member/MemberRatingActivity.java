@@ -55,7 +55,7 @@ public class MemberRatingActivity extends AppCompatActivity implements InternetC
         TextView title = new TextView(getApplicationContext());
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
         title.setLayoutParams(layoutParams);
-        title.setText("RATING");
+        title.setText("MOVIE RATINGS");
         title.setTextSize(20);
         title.setTextColor(Color.parseColor("#FFFFFF"));
         Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sans_bold.ttf");

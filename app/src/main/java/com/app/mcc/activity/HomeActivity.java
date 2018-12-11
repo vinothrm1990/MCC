@@ -3,11 +3,13 @@ package com.app.mcc.activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatEditText;
 import android.view.Gravity;
@@ -140,12 +142,16 @@ public class HomeActivity extends AppCompatActivity
         if (type.equalsIgnoreCase("director")){
             TextView username = headerLayout.findViewById(R.id.director_tv);
             CircularImageView userimage = headerLayout.findViewById(R.id.director_iv);
-            String image = Constants.DIR_PROFILE_URL + Constants.pref.getString("profileimage", "");
+            String image = Constants.pref.getString("profileimage", "");
             String name = Constants.pref.getString("name", "");
-            if (!image.isEmpty() || !name.isEmpty()){
+            if (!image.isEmpty() && !name.isEmpty()){
                 username.setText(name);
-                Glide.with(HomeActivity.this).load(image).thumbnail(0.1f).into(userimage);
-            }else {
+                Glide.with(HomeActivity.this).load(Constants.DIR_PROFILE_URL +image).thumbnail(0.1f).into(userimage);
+            }else if (image.isEmpty() && !name.isEmpty()){
+                username.setText(name);
+                Glide.with(HomeActivity.this).load(R.drawable.profile_logo).thumbnail(0.1f).into(userimage);
+            }
+            else {
                 username.setText("Director's Name");
                 Glide.with(HomeActivity.this).load(R.drawable.profile_logo).thumbnail(0.1f).into(userimage);
             }
@@ -153,17 +159,22 @@ public class HomeActivity extends AppCompatActivity
         if (type.equalsIgnoreCase("member")){
             TextView username= headerLayout.findViewById(R.id.member_tv);
             CircularImageView userimage = headerLayout.findViewById(R.id.member_iv);
-            String image = Constants.MEM_PROFILE_URL + Constants.pref.getString("profile", "");
+            String image = Constants.pref.getString("profile", "");
             String name = Constants.pref.getString("fname", "") + "" +Constants.pref.getString("lname", "");
-            if (!image.isEmpty() || !name.isEmpty()){
+            if (!image.isEmpty() && !name.isEmpty()){
                 username.setText(name);
-                Glide.with(HomeActivity.this).load(image).thumbnail(0.1f).into(userimage);
-            }else {
+                Glide.with(HomeActivity.this).load(Constants.MEM_PROFILE_URL+image).thumbnail(0.1f).into(userimage);
+            }else if (image.isEmpty() && !name.isEmpty()){
+                username.setText(name);
+                Glide.with(HomeActivity.this).load(R.drawable.profile_logo).thumbnail(0.1f).into(userimage);
+            }
+            else {
                 username.setText("Member's Name");
                 Glide.with(HomeActivity.this).load(R.drawable.profile_logo).thumbnail(0.1f).into(userimage);
             }
         } if (type.equalsIgnoreCase("guest")){
             TextView username = headerLayout.findViewById(R.id.guest_tv);
+            CircularImageView userimage = headerLayout.findViewById(R.id.guest_iv);
             username.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -181,7 +192,24 @@ public class HomeActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if (getSupportFragmentManager().getBackStackEntryCount() == 0){
+
+            android.support.v7.app.AlertDialog.Builder alertDialog = new android.support.v7.app.AlertDialog.Builder(HomeActivity.this);
+            alertDialog.setTitle("Exit MCC");
+            alertDialog.setMessage("Are you sure you want to Exit?");
+            /*alertDialog.setIcon(R.drawable.exit);*/
+            alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+            alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                public void onClick(@NonNull DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            alertDialog.show();
+        }else {
             super.onBackPressed();
         }
     }

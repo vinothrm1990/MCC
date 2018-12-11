@@ -44,4 +44,6 @@ dependencies {
     implementation files('libs/YouTubeAndroidPlayerApi.jar')
     implementation 'com.mikhaellopez:circularimageview:3.2.0'
     implementation 'com.codesgood:justifiedtextview:1.1.0'
+    implementation 'com.antonionicolaspina:revealtextview:2.0'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.16'
 }

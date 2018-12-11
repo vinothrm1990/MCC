@@ -3,12 +3,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".guest.GuestHomeFragment">
-    <android.support.v7.widget.RecyclerView
+    <ScrollView
+        android:fillViewport="true"
         android:layout_width="match_parent"
-        android:clipToPadding="false"
-        android:scrollbars="vertical"
-        android:padding="10dp"
-        android:layout_height="match_parent"
-        android:id="@+id/rv_home"/>
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <pl.droidsonroids.gif.GifImageView
+                    android:layout_margin="10dp"
+                    android:id="@+id/gif_iv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/anim_text"/>
+                <android.support.v7.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:clipToPadding="false"
+                    android:scrollbars="vertical"
+                    android:padding="10dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rv_category"/>
+                <android.support.v7.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:clipToPadding="false"
+                    android:scrollbars="vertical"
+                    android:padding="10dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/rv_home"/>
+            </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
 </RelativeLayout>
